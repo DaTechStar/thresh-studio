@@ -4,7 +4,49 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   THRESH STUDIO — DESIGN SYSTEM TOKENS
+   
+   Brand Palette (Cyan / Teal)             hex       →  oklch(L      C      H    )
+   ──────────────────────────────────────────────────────────────────────────────
+   brand-100                              #7DF9FF   →  oklch(91.3%  0.111  199.6)
+   brand-200                              #00D3DA   →  oklch(78.7%  0.134  199  )
+   brand-300                              #00A9AE   →  oklch(66.7%  0.113  198.5)
+   brand-400                              #008084   →  oklch(54.5%  0.093  198.6)
+   brand-500                              #005A5D   →  oklch(42.5%  0.072  198.7)
+   brand-600                              #003739   →  oklch(30.6%  0.052  198.8)
+   brand-700                              #001617   →  oklch(18.2%  0.031  198.6)
+
+   Neutral Palette (Warm Gray / Charcoal)  hex       →  oklch(L      C      H    )
+   ──────────────────────────────────────────────────────────────────────────────
+   neutral-100                            #F1F0F2   →  oklch(95.6%  0.003  308.4)
+   neutral-200                            #D1CFD3   →  oklch(85.7%  0.006  308.4)
+   neutral-300                            #AAA8AF   →  oklch(73.5%  0.010  299.2)
+   neutral-400                            #85828C   →  oklch(61.2%  0.015  299.6)
+   neutral-500                            #625E69   →  oklch(48.9%  0.018  302.2)
+   neutral-600                            #403D45   →  oklch(36.6%  0.014  302.7)
+   neutral-700                            #201F24   →  oklch(24.2%  0.010  294.9)
+   ============================================================ */
+
 @theme inline {
+    /* Brand Color Scale (Cyan / Teal) */
+    --color-brand-100: oklch(91.3% 0.111 199.6);
+    --color-brand-200: oklch(78.7% 0.134 199);
+    --color-brand-300: oklch(66.7% 0.113 198.5);
+    --color-brand-400: oklch(54.5% 0.093 198.6);
+    --color-brand-500: oklch(42.5% 0.072 198.7);
+    --color-brand-600: oklch(30.6% 0.052 198.8);
+    --color-brand-700: oklch(18.2% 0.031 198.6);
+
+    /* Neutral Color Scale (Warm Gray / Charcoal) */
+    --color-neutral-100: oklch(95.6% 0.003 308.4);
+    --color-neutral-200: oklch(85.7% 0.006 308.4);
+    --color-neutral-300: oklch(73.5% 0.010 299.2);
+    --color-neutral-400: oklch(61.2% 0.015 299.6);
+    --color-neutral-500: oklch(48.9% 0.018 302.2);
+    --color-neutral-600: oklch(36.6% 0.014 302.7);
+    --color-neutral-700: oklch(24.2% 0.010 294.9);
+
     --font-heading: var(--font-sans);
     --font-sans: var(--font-sans);
     --color-sidebar-ring: var(--sidebar-ring);
@@ -47,73 +89,62 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ============================================================
+   :root — Permanent Dark Theme (no light/dark toggle)
+   ============================================================ */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-}
+    /* Base */
+    --background: #050505;                          /* Deep cinematic black */
+    --foreground: oklch(95.6% 0.003 308.4);         /* neutral-100 → #F1F0F2 */
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    /* Cards & Popovers */
+    --card: oklch(36.6% 0.014 302.7);               /* neutral-600 → #403D45 */
+    --card-foreground: oklch(95.6% 0.003 308.4);
+    --popover: oklch(36.6% 0.014 302.7);            /* neutral-600 → #403D45 */
+    --popover-foreground: oklch(95.6% 0.003 308.4);
+
+    /* Primary — Brand Cyan */
+    --primary: oklch(78.7% 0.134 199);              /* brand-200 → #00D3DA */
+    --primary-foreground: oklch(18.2% 0.031 198.6); /* brand-700 → #001617 */
+
+    /* Secondary — Mid Gray */
+    --secondary: oklch(48.9% 0.018 302.2);          /* neutral-500 → #625E69 */
+    --secondary-foreground: oklch(95.6% 0.003 308.4);
+
+    /* Muted */
+    --muted: oklch(36.6% 0.014 302.7);              /* neutral-600 → #403D45 */
+    --muted-foreground: oklch(73.5% 0.010 299.2);   /* neutral-300 → #AAA8AF */
+
+    /* Accent — Dark Cyan */
+    --accent: oklch(42.5% 0.072 198.7);             /* brand-500 → #005A5D */
+    --accent-foreground: oklch(95.6% 0.003 308.4);
+
+    /* Destructive */
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+
+    /* Borders & Inputs */
+    --border: oklch(48.9% 0.018 302.2 / 60%);       /* neutral-500 at 60% */
+    --input: oklch(48.9% 0.018 302.2 / 80%);        /* neutral-500 at 80% */
+    --ring: oklch(78.7% 0.134 199);                 /* brand-200 → #00D3DA */
+
+    /* Charts — Brand Cyan Scale */
+    --chart-1: oklch(91.3% 0.111 199.6);            /* brand-100 → #7DF9FF */
+    --chart-2: oklch(78.7% 0.134 199);              /* brand-200 → #00D3DA */
+    --chart-3: oklch(66.7% 0.113 198.5);            /* brand-300 → #00A9AE */
+    --chart-4: oklch(54.5% 0.093 198.6);            /* brand-400 → #008084 */
+    --chart-5: oklch(42.5% 0.072 198.7);            /* brand-500 → #005A5D */
+
+    --radius: 0.625rem;
+
+    /* Sidebar */
+    --sidebar: oklch(24.2% 0.010 294.9);            /* neutral-700 → #201F24 */
+    --sidebar-foreground: oklch(95.6% 0.003 308.4);
+    --sidebar-primary: oklch(78.7% 0.134 199);      /* brand-200 → #00D3DA */
+    --sidebar-primary-foreground: oklch(18.2% 0.031 198.6);
+    --sidebar-accent: oklch(36.6% 0.014 302.7);     /* neutral-600 → #403D45 */
+    --sidebar-accent-foreground: oklch(95.6% 0.003 308.4);
+    --sidebar-border: oklch(48.9% 0.018 302.2 / 60%);
+    --sidebar-ring: oklch(78.7% 0.134 199);
 }
 
 @layer base {
