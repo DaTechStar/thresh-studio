@@ -37,7 +37,7 @@ export function Navbar() {
     <header 
       className="absolute top-0 left-0 w-full z-[100] flex justify-center px-4 md:px-8 py-8"
     >
-      <div className="w-full max-w-screen-xl mx-auto px-6 md:px-10 py-4 flex items-center justify-between bg-background/20 backdrop-blur-md border border-brand-500/20 rounded-full shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+      <div className="w-full max-w-screen-xl mx-auto px-4 md:px-8 lg:px-10 py-3 md:py-4 flex items-center justify-between bg-background/20 backdrop-blur-md border border-brand-500/20 rounded-full shadow-[0_4px_30px_rgba(0,0,0,0.1)] gap-4">
         
         {/* Logo (Original Color, no mix-blend/invert) */}
         <a 
@@ -54,7 +54,7 @@ export function Navbar() {
         </a>
 
         {/* Center Links (Sleek, bright white, premium spacing) */}
-        <nav className="hidden md:flex items-center gap-16">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-16">
           {navLinks.map((link) => (
             <a
               key={link.name}
@@ -72,15 +72,15 @@ export function Navbar() {
         </nav>
 
         {/* Right CTA (Sharp, minimalistic button) */}
-        <div className="flex items-center">
+        <div className="flex items-center shrink-0">
           <a
             href="mailto:hello@thresh.studio"
-            className="group relative flex items-center justify-center px-8 py-4 rounded-full border border-neutral-700 overflow-hidden cursor-none transition-colors duration-700 hover:border-brand-300"
+            className="group relative flex items-center justify-center px-5 py-3 md:px-8 md:py-4 rounded-full border border-neutral-700 overflow-hidden cursor-none transition-colors duration-700 hover:border-brand-300"
             onMouseEnter={() => setCursorState("magnetic")}
             onMouseLeave={() => setCursorState("default")}
           >
             <div className="absolute inset-0 bg-brand-500/20 translate-y-[101%] group-hover:translate-y-0 transition-transform duration-700 ease-[0.76,0,0.24,1]" />
-            <span className="relative z-10 text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-neutral-100 group-hover:text-brand-100 transition-colors duration-300">
+            <span className="relative z-10 text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-neutral-100 group-hover:text-brand-100 transition-colors duration-300 whitespace-nowrap">
               Start Project
             </span>
           </a>
