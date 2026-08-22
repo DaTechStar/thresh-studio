@@ -2,44 +2,17 @@
 
 import React, { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
+import Link from "next/link";
 import { useCursor } from "../cursor/CursorContext";
-import { cn } from "@/lib/utils";
+import { projects } from "@/lib/projects";
 
-const projects = [
-  { 
-    id: 1, 
-    title: "Lumina Edge", 
-    category: "Product Video", 
-    year: "2026",
-    // Highly reliable Unsplash images (premium product aesthetic)
-    image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=2560&auto=format&fit=crop" // Mac/tech
-  },
-  { 
-    id: 2, 
-    title: "Aether OS", 
-    category: "Cinematic Campaign", 
-    year: "2025",
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2560&auto=format&fit=crop" // Retro tech / UI
-  },
-  { 
-    id: 3, 
-    title: "Chronos Watch", 
-    category: "3D Product Motion", 
-    year: "2025",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2560&auto=format&fit=crop" // Watch product
-  },
-  { 
-    id: 4, 
-    title: "Nexus Drive", 
-    category: "Brand Showreel", 
-    year: "2026",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2560&auto=format&fit=crop" // Headphones/hardware
-  },
-];
+// Only show the first 4 on the homepage section
+const featuredProjects = projects.slice(0, 4);
 
 export function SelectedWork() {
   const container = useRef<HTMLDivElement>(null);
   const scrollWrapper = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLAnchorElement>(null);
   const { setCursorState } = useCursor();
 
   useGSAP(() => {
@@ -85,6 +58,23 @@ export function SelectedWork() {
       }
     });
 
+    // Badge entry animation
+    if (badgeRef.current) {
+      gsap.fromTo(badgeRef.current,
+        { scale: 0, opacity: 0, rotation: -90 },
+        {
+          scale: 1, opacity: 1, rotation: 0,
+          ease: "back.out(1.5)",
+          duration: 1,
+          scrollTrigger: {
+            trigger: container.current,
+            start: "top 60%", // animate in before it pins
+            toggleActions: "play reverse play reverse",
+          }
+        }
+      );
+    }
+
   }, { scope: container });
 
   return (
@@ -99,9 +89,9 @@ export function SelectedWork() {
       <div 
         ref={scrollWrapper} 
         className="absolute top-0 left-0 h-full flex items-center will-change-transform"
-        style={{ width: `${projects.length * 100}vw` }}
+        style={{ width: `${featuredProjects.length * 100}vw` }}
       >
-        {projects.map((project) => (
+        {featuredProjects.map((project) => (
           <div 
             key={project.id} 
             className="project-card h-full w-screen flex items-center justify-center relative shrink-0 overflow-hidden"
@@ -140,10 +130,77 @@ export function SelectedWork() {
                   </div>
                 </div>
               </div>
+
+              {/* ── Per-card Case Study CTA ─────────────────────────────── */}
+              <Link
+                href={`/work/${project.slug}`}
+                className="absolute bottom-8 left-8 md:bottom-12 md:left-12 z-30 pointer-events-auto"
+                onMouseEnter={() => setCursorState("link")}
+                onMouseLeave={() => setCursorState("default")}
+              >
+                <div className="flex items-center gap-3 group/btn">
+                  {/* Pill button */}
+                  <div className="relative overflow-hidden flex items-center gap-3 pl-5 pr-4 py-3 rounded-full border border-brand-500/40 bg-background/30 backdrop-blur-md transition-all duration-500 group-hover/btn:border-brand-400 group-hover/btn:bg-brand-500/15 group-hover/btn:pr-5">
+                    {/* Animated fill */}
+                    <div className="absolute inset-0 bg-brand-500/10 translate-x-[-101%] group-hover/btn:translate-x-0 transition-transform duration-500 ease-out rounded-full" />
+                    <span className="relative font-mono text-xs uppercase tracking-[0.25em] text-brand-100 transition-colors duration-300 whitespace-nowrap">
+                      Case Study
+                    </span>
+                    {/* Arrow icon */}
+                    <span className="relative flex items-center justify-center w-6 h-6 rounded-full bg-brand-500/20 group-hover/btn:bg-brand-400/30 transition-colors duration-300">
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 10 10"
+                        fill="none"
+                        className="text-brand-100 group-hover/btn:translate-x-px transition-transform duration-300"
+                      >
+                        <path
+                          d="M1 9L9 1M9 1H3M9 1V7"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </Link>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Floating Circular Badge — links to full archive */}
+      <Link 
+        href="/work" 
+        ref={badgeRef}
+        className="absolute bottom-8 right-8 md:bottom-16 md:right-16 z-30 group cursor-none" 
+        onMouseEnter={() => setCursorState("link")}
+        onMouseLeave={() => setCursorState("default")}
+      >
+        <div className="relative w-28 h-28 md:w-40 md:h-40 flex items-center justify-center rounded-full bg-brand-500/10 backdrop-blur-md border border-brand-500/20 hover:bg-brand-500/20 transition-colors duration-500 overflow-hidden">
+          {/* Rotating Text SVG */}
+          <div className="absolute inset-0 w-full h-full animate-[spin_10s_linear_infinite] group-hover:animate-[spin_4s_linear_infinite]">
+            <svg viewBox="0 0 100 100" className="w-full h-full text-brand-100">
+              <path id="circlePath" d="M 50, 50 m -34, 0 a 34,34 0 1,1 68,0 a 34,34 0 1,1 -68,0" fill="transparent" />
+              <text className="text-[12px] font-mono uppercase tracking-[0.2em] fill-current">
+                <textPath href="#circlePath" startOffset="0%">
+                  VIEW ALL WORKS • VIEW ALL WORKS • 
+                </textPath>
+              </text>
+            </svg>
+          </div>
+          {/* Center Arrow */}
+          <div className="absolute text-brand-100 group-hover:scale-125 transition-transform duration-500 ease-out">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </div>
+        </div>
+      </Link>
     </section>
   );
 }
