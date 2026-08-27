@@ -32,57 +32,82 @@ export function Testimonials() {
   useGSAP(() => {
     if (!container.current) return;
     const cards = gsap.utils.toArray<HTMLElement>(".testimonial-card");
-    
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: container.current,
-        start: "top top",
-        end: `+=${cards.length * 100}%`,
-        pin: true,
-        scrub: 1,
-      }
-    });
+    const mm = gsap.matchMedia();
 
-    // Initial setup: stack them all correctly, with background cards hidden
-    gsap.set(cards, { 
-      transformOrigin: "center center",
-    });
-    
-    cards.forEach((card, i) => {
-      if (i > 0) {
-        gsap.set(card, { y: -50, scale: 0.95, opacity: 0 }); // Hidden initially, above the stack
-      }
-    });
+    mm.add("(min-width: 768px)", () => {
+      // Desktop: Pinned stacked cards
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container.current,
+          start: "top top",
+          end: `+=${cards.length * 100}%`,
+          pin: true,
+          scrub: 1,
+        }
+      });
 
-    cards.forEach((card, index) => {
-      if (index === cards.length - 1) return; // Last card stays
+      // Initial setup: stack them all correctly, with background cards hidden
+      gsap.set(cards, { 
+        transformOrigin: "center center",
+      });
       
-      // 1. Current card falls DOWN and fades out
-      tl.to(card, {
-        y: 100,
-        opacity: 0,
-        scale: 1.05,
-        duration: 1,
-        ease: "power1.inOut"
-      }, index);
+      cards.forEach((card, i) => {
+        if (i > 0) {
+          gsap.set(card, { y: -50, scale: 0.95, opacity: 0 }); // Hidden initially, above the stack
+        }
+      });
 
-      // 2. Next card smoothly falls DOWN into place
-      const nextCard = cards[index + 1];
-      tl.to(nextCard, {
-        y: 0,
-        scale: 1,
-        opacity: 1,
-        duration: 1,
-        ease: "power1.inOut"
-      }, index);
+      cards.forEach((card, index) => {
+        if (index === cards.length - 1) return; // Last card stays
+        
+        // 1. Current card falls DOWN and fades out
+        tl.to(card, {
+          y: 100,
+          opacity: 0,
+          scale: 1.05,
+          duration: 1,
+          ease: "power1.inOut"
+        }, index);
+
+        // 2. Next card smoothly falls DOWN into place
+        const nextCard = cards[index + 1];
+        tl.to(nextCard, {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          duration: 1,
+          ease: "power1.inOut"
+        }, index);
+      });
     });
+
+    mm.add("(max-width: 767px)", () => {
+      // Mobile: Simple scroll reveal
+      cards.forEach((card) => {
+        gsap.fromTo(card,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+              toggleActions: "play none none none"
+            }
+          }
+        );
+      });
+    });
+
   }, { scope: container });
 
   return (
     <section 
       ref={container} 
       id="testimonials"
-      className="relative h-screen w-full bg-background flex flex-col overflow-hidden border-t border-neutral-800"
+      className="relative md:h-screen w-full bg-background flex flex-col md:overflow-hidden border-t border-neutral-800"
     >
       
       {/* Section Header */}
@@ -95,16 +120,20 @@ export function Testimonials() {
          </p>
       </div>
 
-      {/* Stacked Cards Container */}
+      {/* Cards Container */}
       <div 
-        className="relative z-10 w-full max-w-5xl mx-auto h-[50vh] md:h-[60vh] mt-16 md:mt-24 perspective-[1000px] cursor-none"
-        onMouseEnter={() => setCursorState("explore")}
-        onMouseLeave={() => setCursorState("default")}
+        className="relative z-10 w-full max-w-5xl mx-auto h-auto md:h-[60vh] mt-16 md:mt-24 px-4 md:px-0 pb-20 md:pb-0 perspective-[1000px] md:cursor-none flex flex-col gap-6 md:block"
+        onMouseEnter={() => {
+          if (window.innerWidth >= 768) setCursorState("explore");
+        }}
+        onMouseLeave={() => {
+          if (window.innerWidth >= 768) setCursorState("default");
+        }}
       >
         {testimonials.map((testimonial, i) => (
           <div 
             key={i} 
-            className="testimonial-card absolute top-0 left-0 w-full h-full flex flex-col md:flex-row rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.6)] border border-brand-500/50 bg-black"
+            className="testimonial-card relative md:absolute top-0 left-0 w-full h-auto md:h-full flex flex-col md:flex-row rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.6)] border border-brand-500/50 bg-black"
             style={{ zIndex: testimonials.length - i }}
           >
             {/* Strong Black to Brand Background */}
@@ -118,8 +147,8 @@ export function Testimonials() {
                
                {/* Left Column (Avatar, Name, Rating) */}
                <div className="w-full md:w-1/3 flex flex-col items-start md:border-r border-brand-500/20 md:pr-12">
-                  <div className="relative mb-6 md:mb-10 w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-2xl">
-                    <img src={testimonial.avatar} className="absolute inset-0 w-full h-full object-cover mix-blend-luminosity" />
+                  <div className="relative mb-6 md:mb-10 w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-2xl shrink-0">
+                    <img src={testimonial.avatar} alt={testimonial.author} className="absolute inset-0 w-full h-full object-cover md:mix-blend-luminosity" />
                     <div className="absolute inset-0 bg-brand-500/40 mix-blend-color pointer-events-none" />
                   </div>
                   
@@ -135,7 +164,7 @@ export function Testimonials() {
                </div>
 
                {/* Right Column (Quote, Buttons) */}
-               <div className="w-full md:w-2/3 flex flex-col justify-between">
+               <div className="w-full md:w-2/3 flex flex-col justify-center">
                   <div>
                     <div className="text-5xl md:text-7xl text-brand-500/30 font-serif leading-none mb-4 md:mb-6">&ldquo;</div>
                     <p className="text-xl md:text-3xl font-medium tracking-tight text-neutral-200 leading-tight">

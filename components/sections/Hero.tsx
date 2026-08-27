@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { useCursor } from "../cursor/CursorContext";
+import { VimeoEmbed } from "../media/VimeoEmbed";
 
 export function Hero() {
   const { setCursorState } = useCursor();
@@ -57,11 +58,10 @@ export function Hero() {
     }, 0)
       // Video expands from a framed window into a full immersive background
       .to(videoWrapper.current, {
-        width: "100vw",
+        width: "100%",
         height: "100vh",
         borderRadius: "0px",
         bottom: "0",
-        scale: 1,
         duration: 1.5,
         ease: "power2.inOut"
       }, 0)
@@ -124,20 +124,12 @@ export function Hero() {
 
       <div
         ref={videoWrapper}
-        className="absolute bottom-[5%] left-1/2 z-0 h-[40vh] w-[60vw] -translate-x-1/2 overflow-hidden rounded-[30px] bg-neutral-600 shadow-[0_0_50px_rgba(0,22,23,0.8)] border border-brand-500/20 transform-gpu"
+        className="absolute bottom-[5%] left-0 right-0 mx-auto z-0 h-[40vh] w-[60vw] overflow-hidden rounded-[30px] bg-neutral-600 shadow-[0_0_50px_rgba(0,22,23,0.8)] border border-brand-500/20 transform-gpu"
       >
         <div className="hero-overlay absolute inset-0 z-10 bg-neutral-900/40" style={{ backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }} />
 
-        {/* Real Video Background */}
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-80"
-          src="https://media.w3.org/2010/05/sintel/trailer.mp4"
-        />
+        {/* Vimeo Video Background */}
+        <VimeoEmbed vimeoId="1121463132" className="absolute inset-0 z-0 opacity-80" />
       </div>
     </section>
   );

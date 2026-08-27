@@ -5,6 +5,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import Link from "next/link";
 import { useCursor } from "../cursor/CursorContext";
 import { projects } from "@/lib/projects";
+import { VimeoEmbed } from "@/components/media/VimeoEmbed";
 
 // Only show the first 4 on the homepage section
 const featuredProjects = projects.slice(0, 4);
@@ -103,33 +104,23 @@ export function SelectedWork() {
             >
               {/* Parallax Image Container */}
               <div className="absolute top-0 left-[-20%] w-[140%] h-full pointer-events-none">
-                <img
-                  className="project-image w-full h-full object-cover mix-blend-luminosity transition-transform duration-[2s] ease-out group-hover:scale-[1.1] group-hover:mix-blend-normal"
-                  src={project.image}
-                  alt={project.title}
-                />
+                {project.vimeoId ? (
+                  <VimeoEmbed 
+                    vimeoId={project.vimeoId} 
+                    className="project-image w-full h-full object-cover md:mix-blend-luminosity transition-transform duration-[2s] ease-out group-hover:scale-[1.1] md:group-hover:mix-blend-normal" 
+                  />
+                ) : (
+                  <img
+                    className="project-image w-full h-full object-cover md:mix-blend-luminosity transition-transform duration-[2s] ease-out group-hover:scale-[1.1] md:group-hover:mix-blend-normal"
+                    src={project.image}
+                    alt={project.title}
+                  />
+                )}
               </div>
 
               {/* Overlays for contrast (always visible) */}
               <div className="absolute inset-0 bg-neutral-900/20 mix-blend-multiply" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/80 via-transparent to-transparent opacity-90" />
-              
-              {/* Center Typography overlay using mix-blend-difference (always visible) */}
-              <div className="absolute inset-0 flex flex-col justify-center items-center p-8 pointer-events-none">
-                <div className="overflow-hidden mix-blend-difference">
-                  <h3 className="text-[12vw] md:text-[8vw] font-bold tracking-[-0.04em] uppercase leading-[0.8] text-neutral-100 text-center">
-                    {project.title}
-                  </h3>
-                </div>
-                
-                <div className="overflow-hidden mt-8 mix-blend-difference">
-                  <div className="flex gap-8 items-center justify-center">
-                    <span className="text-sm md:text-base font-mono uppercase tracking-[0.4em] text-brand-200">{project.category}</span>
-                    <span className="w-12 h-[1px] bg-brand-500/50" />
-                    <span className="text-sm md:text-base font-mono text-neutral-300">{project.year}</span>
-                  </div>
-                </div>
-              </div>
 
               {/* ── Per-card Case Study CTA ─────────────────────────────── */}
               <Link

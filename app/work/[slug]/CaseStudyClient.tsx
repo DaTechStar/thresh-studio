@@ -7,6 +7,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { useCursor } from "@/components/cursor/CursorContext";
 import { Footer } from "@/components/sections/Footer";
 import { getAdjacentProject, type Project } from "@/lib/projects";
+import { VimeoEmbed } from "@/components/media/VimeoEmbed";
 
 export function CaseStudyClient({ project }: { project: Project }) {
   const nextProject = getAdjacentProject(project.slug);
@@ -28,63 +29,84 @@ export function CaseStudyClient({ project }: { project: Project }) {
       .fromTo(".cs-sub",   { y: 24,  opacity: 0 }, { y: 0, opacity: 1, duration: 0.9 }, 0.55)
       .fromTo(cardRef.current, { scale: 1.07, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5 }, 0.1);
 
-    // ── 2. Compute initial card bounds from rendered header ───────────
-    //    We read the rects AFTER the entrance animation's first tick so
-    //    the layout is stable.
-    const heroRect   = heroRef.current.getBoundingClientRect();
-    const headerRect = headerRef.current.getBoundingClientRect();
+    const mm = gsap.matchMedia();
 
-    const PAD = window.innerWidth >= 768 ? 64 : 24; // md:px-16 / px-6
-    const GAP = 20;
+    mm.add("(min-width: 768px)", () => {
+      // ── 2. Compute initial card bounds from rendered header (Desktop) ───────────
+      const headerRect = headerRef.current!.getBoundingClientRect();
+      const initTop    = headerRect.height + 20;
+      const initLeft   = 64;
+      const initRight  = 64;
+      const initBottom = 0;
 
-    const initTop    = headerRect.height + GAP;
-    const initLeft   = PAD;
-    const initRight  = PAD;
-    const initBottom = 0;
+      // Position the card absolutely with the computed offsets
+      gsap.set(cardRef.current, {
+        position:     "absolute",
+        top:          initTop,
+        left:         initLeft,
+        right:        initRight,
+        bottom:       initBottom,
+        borderRadius: "1.25rem",
+        overflow:     "hidden",
+        width:        "auto",
+        height:       "auto",
+      });
 
-    // Position the card absolutely with the computed offsets
-    gsap.set(cardRef.current, {
-      position:     "absolute",
-      top:          initTop,
-      left:         initLeft,
-      right:        initRight,
-      bottom:       initBottom,
-      borderRadius: "1.25rem",
-      overflow:     "hidden",
-      width:        "auto",
-      height:       "auto",
+      // ── 3. Scroll-driven expansion ────────────────────────────────────
+      const expandTl = gsap.timeline({
+        scrollTrigger: {
+          trigger:      heroRef.current,
+          start:        "top top",
+          end:          "+=1000",
+          pin:          true,
+          scrub:        1.5,
+          anticipatePin: 1,
+          pinSpacing:   true,
+        },
+      });
+
+      expandTl
+        // Fade/slide the text header away
+        .to(headerRef.current, { opacity: 0, y: -32, duration: 0.4 }, 0)
+        // Expand card to fullscreen
+        .to(cardRef.current, {
+          top:          0,
+          left:         0,
+          right:        0,
+          bottom:       0,
+          borderRadius: 0,
+          duration:     1,
+          ease:         "none",
+        }, 0);
     });
 
-    // ── 3. Scroll-driven expansion ────────────────────────────────────
-    //    pin:true is used instead of CSS sticky — avoids overflow
-    //    ancestor restrictions entirely.
-    //    As the user scrolls 1000px, the card expands from its
-    //    initial inset to inset:0 (true fullscreen within the viewport).
-    const expandTl = gsap.timeline({
-      scrollTrigger: {
-        trigger:      heroRef.current,
-        start:        "top top",
-        end:          "+=1000",
-        pin:          true,
-        scrub:        1.5,
-        anticipatePin: 1,
-        pinSpacing:   true,
-      },
-    });
+    mm.add("(max-width: 767px)", () => {
+      // ── Mobile Layout (No pinning, no layout thrashing) ───────────
+      gsap.set(cardRef.current, {
+        position:     "relative",
+        top:          "auto",
+        left:         "auto",
+        right:        "auto",
+        bottom:       "auto",
+        marginTop:    "24px",
+        borderRadius: "1rem",
+        overflow:     "hidden",
+        width:        "100%",
+        height:       "auto",
+        aspectRatio:  "4/3"
+      });
 
-    expandTl
-      // Fade/slide the text header away
-      .to(headerRef.current, { opacity: 0, y: -32, duration: 0.4 }, 0)
-      // Expand card to fullscreen
-      .to(cardRef.current, {
-        top:          0,
-        left:         0,
-        right:        0,
-        bottom:       0,
-        borderRadius: 0,
-        duration:     1,
-        ease:         "none",
-      }, 0);
+      gsap.to(headerRef.current, {
+        opacity: 0,
+        y: -16,
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        }
+      });
+    });
 
     // ── 4. Scroll reveals for sections below ─────────────────────────
     gsap.utils.toArray<HTMLElement>(".cs-reveal", containerRef.current).forEach((el) => {
@@ -117,7 +139,7 @@ export function CaseStudyClient({ project }: { project: Project }) {
           GSAP pin:true handles pinning so no overflow restriction issues */}
       <section
         ref={heroRef}
-        className="relative z-[2] h-screen bg-background overflow-hidden"
+        className="relative z-[2] min-h-screen md:h-screen bg-background md:overflow-hidden pb-10 md:pb-0"
       >
         {/* Text header — fades out on scroll */}
         <div ref={headerRef} className="relative z-10 pt-36 md:pt-40 px-6 md:px-16 pb-5">
@@ -156,11 +178,15 @@ export function CaseStudyClient({ project }: { project: Project }) {
           onMouseEnter={() => setCursorState("drag")}
           onMouseLeave={() => setCursorState("default")}
         >
-          <img
-            src={project.image}
-            alt={project.title}
-            className="w-full h-full object-cover"
-          />
+          {project.vimeoId ? (
+            <VimeoEmbed vimeoId={project.vimeoId} />
+          ) : (
+            <img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-full object-cover"
+            />
+          )}
         </div>
       </section>
 
@@ -231,7 +257,7 @@ export function CaseStudyClient({ project }: { project: Project }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             {project.gallery.map((src, i) => (
               <div key={i} className={`cs-gal relative overflow-hidden rounded-2xl bg-neutral-900 ${i === 0 ? "md:col-span-2 aspect-[16/7]" : "aspect-[4/3]"}`}>
-                <img src={src} alt={`${project.title} — ${i + 1}`} className="w-full h-full object-cover mix-blend-luminosity hover:mix-blend-normal hover:scale-[1.04] transition-all duration-700" />
+                <img src={src} alt={`${project.title} — ${i + 1}`} className="w-full h-full object-cover md:mix-blend-luminosity md:hover:mix-blend-normal hover:scale-[1.04] transition-all duration-700" />
               </div>
             ))}
           </div>
@@ -258,24 +284,27 @@ export function CaseStudyClient({ project }: { project: Project }) {
               onMouseLeave={() => setCursorState("default")}
             >
               <div className="relative w-full aspect-[16/7] overflow-hidden bg-neutral-900">
-                <img src={nextProject.image} alt={nextProject.title}
-                  className="absolute inset-0 w-full h-full object-cover mix-blend-luminosity group-hover:mix-blend-normal transition-all duration-700 group-hover:scale-[1.04]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/40 to-background/10" />
-                <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16 z-10">
-                  <p className="font-mono text-xs uppercase tracking-[0.3em] text-neutral-500 mb-3">Next Project</p>
-                  <div className="flex items-end justify-between gap-6">
-                    <h2 className="text-[10vw] md:text-[7vw] font-bold tracking-tighter uppercase leading-[0.85] text-brand-100 group-hover:text-white transition-colors duration-500">
-                      {nextProject.title}
-                    </h2>
-                    <div className="flex-shrink-0 flex items-center gap-3 mb-2 font-mono text-sm uppercase tracking-widest text-neutral-400 group-hover:text-brand-100 transition-colors">
-                      <span className="hidden md:block">View Case Study</span>
-                      <div className="p-3 rounded-full border border-neutral-700 group-hover:border-brand-500 group-hover:bg-brand-500/10 transition-all">
-                        <ArrowUpRight className="w-4 h-4" />
-                      </div>
+                {nextProject.vimeoId ? (
+                  <div className="absolute inset-0 z-0">
+                    <VimeoEmbed 
+                      vimeoId={nextProject.vimeoId} 
+                      className="md:mix-blend-luminosity md:group-hover:mix-blend-normal transition-all duration-700 group-hover:scale-[1.04]"
+                    />
+                  </div>
+                ) : (
+                  <img src={nextProject.image} alt={nextProject.title}
+                    className="absolute inset-0 w-full h-full object-cover md:mix-blend-luminosity md:group-hover:mix-blend-normal transition-all duration-700 group-hover:scale-[1.04]"
+                  />
+                )}
+                
+                {/* Minimal Hover Pill */}
+                <div className="absolute top-6 right-6 md:top-8 md:right-8 z-20 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out">
+                  <div className="flex items-center gap-3 pl-5 pr-4 py-3 rounded-full bg-background/60 backdrop-blur-md border border-brand-500/40">
+                    <span className="font-mono text-xs uppercase tracking-widest text-brand-100">Next Project</span>
+                    <div className="w-6 h-6 rounded-full bg-brand-500/30 flex items-center justify-center">
+                      <ArrowUpRight className="w-3 h-3 text-brand-100" />
                     </div>
                   </div>
-                  <p className="mt-2 font-mono text-sm text-neutral-500 uppercase tracking-widest">{nextProject.category} — {nextProject.year}</p>
                 </div>
               </div>
             </Link>

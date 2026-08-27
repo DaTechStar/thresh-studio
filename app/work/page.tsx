@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Footer } from "@/components/sections/Footer";
 import { projects } from "@/lib/projects";
+import { VimeoEmbed } from "@/components/media/VimeoEmbed";
 
 export default function WorkPage() {
   const container = useRef<HTMLDivElement>(null);
@@ -32,60 +33,102 @@ export default function WorkPage() {
       "-=1"
     );
 
-    // Extreme Image Parallax & Scrub Scale Effect
-    const cards = gsap.utils.toArray<HTMLElement>(".project-card");
-    cards.forEach((card) => {
-      const inner = card.querySelector(".project-card-inner");
-      const img = card.querySelector(".project-img");
-      const cardTitleWrapper = card.querySelector(".project-title-wrapper");
-      
-      if (inner) {
-        const scrubTl = gsap.timeline({
-          scrollTrigger: {
-            trigger: card,
-            start: "top 95%",
-            end: "top -35%",
-            scrub: true,
-          }
-        });
+    const mm = gsap.matchMedia();
 
-        // ENTER (first half): narrow → full width
-        scrubTl.fromTo(inner,
-          { scaleX: 0.75, scaleY: 0.95, opacity: 0.5, y: 40 },
-          { scaleX: 1, scaleY: 1, opacity: 1, y: 0, duration: 0.5, ease: "none" }
-        )
-        // EXIT (second half): full width → narrow, perfectly mirrored
-        .to(inner,
-          { scaleX: 0.75, scaleY: 0.95, opacity: 0.5, y: -40, duration: 0.5, ease: "none" }
-        );
-      }
-      
-      if(img) {
-        gsap.to(img, {
-          y: "30%", // aggressive parallax
-          ease: "none",
-          scrollTrigger: {
-            trigger: card,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
+    mm.add("(min-width: 768px)", () => {
+      // Desktop: Extreme Image Parallax & Scrub Scale Effect
+      const cards = gsap.utils.toArray<HTMLElement>(".project-card");
+      cards.forEach((card) => {
+        const inner = card.querySelector(".project-card-inner");
+        const img = card.querySelector(".project-img");
+        
+        if (inner) {
+          const scrubTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: card,
+              start: "top 95%",
+              end: "top -35%",
+              scrub: true,
+            }
+          });
+  
+          // ENTER (first half): narrow → full width
+          scrubTl.fromTo(inner,
+            { scaleX: 0.75, scaleY: 0.95, opacity: 0.5, y: 40 },
+            { scaleX: 1, scaleY: 1, opacity: 1, y: 0, duration: 0.5, ease: "none" }
+          )
+          // EXIT (second half): full width → narrow, perfectly mirrored
+          .to(inner,
+            { scaleX: 0.75, scaleY: 0.95, opacity: 0.5, y: -40, duration: 0.5, ease: "none" }
+          );
+
+          if (img) {
+            scrubTl.fromTo(img,
+              { filter: "grayscale(100%)" },
+              { filter: "grayscale(0%)", duration: 0.5, ease: "none" },
+              0
+            )
+            .to(img,
+              { filter: "grayscale(100%)", duration: 0.5, ease: "none" },
+              0.5
+            );
           }
-        });
-      }
-      
-      if (cardTitleWrapper) {
-        // Subtle counter-parallax for the title
-        gsap.to(cardTitleWrapper, {
-          y: "-15%",
-          ease: "none",
-          scrollTrigger: {
-            trigger: card,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          }
-        });
-      }
+        }
+        
+        if(img) {
+          gsap.to(img, {
+            y: "30%", // aggressive parallax
+            ease: "none",
+            scrollTrigger: {
+              trigger: card,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            }
+          });
+        }
+        
+
+      });
+    });
+
+    mm.add("(max-width: 767px)", () => {
+      // Mobile: Simplified Fade & Parallax
+      const cards = gsap.utils.toArray<HTMLElement>(".project-card");
+      cards.forEach((card) => {
+        const inner = card.querySelector(".project-card-inner");
+        const img = card.querySelector(".project-img");
+        
+        if (inner) {
+          gsap.fromTo(inner, 
+            { opacity: 0, y: 30 },
+            { 
+              opacity: 1, 
+              y: 0,
+              duration: 0.8,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: card,
+                start: "top 85%",
+                toggleActions: "play none none none"
+              }
+            }
+          );
+        }
+
+        if(img) {
+          gsap.to(img, {
+            y: "10%", // much lighter parallax
+            ease: "none",
+            scrollTrigger: {
+              trigger: card,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            }
+          });
+        }
+      });
     });
 
   }, { scope: container });
@@ -150,23 +193,22 @@ export default function WorkPage() {
                     {/* Image Container */}
                     <div className="relative w-full aspect-[4/3] md:aspect-[16/10] overflow-hidden rounded-xl md:rounded-3xl bg-neutral-900">
                       <div className="absolute inset-[-20%] w-[140%] h-[140%] pointer-events-none">
-                        <img
-                          className="project-img w-full h-full object-cover mix-blend-luminosity transition-all duration-[2s] ease-out group-hover:scale-[1.05] group-hover:mix-blend-normal"
-                          src={project.image}
-                          alt={project.title}
-                        />
+                        {project.vimeoId ? (
+                          <div className="project-img w-full h-full object-cover transition-all duration-[2s] ease-out group-hover:scale-[1.05]">
+                             <VimeoEmbed vimeoId={project.vimeoId} />
+                          </div>
+                        ) : (
+                          <img
+                            className="project-img w-full h-full object-cover transition-all duration-[2s] ease-out group-hover:scale-[1.05]"
+                            src={project.image}
+                            alt={project.title}
+                          />
+                        )}
                       </div>
                       
                       {/* Subtle Grain / Darkening overlay */}
                       <div className="absolute inset-0 bg-neutral-900/30 mix-blend-multiply transition-opacity duration-700 group-hover:opacity-10" />
                       
-                      {/* Massive Title Overlay */}
-                      <div className="project-title-wrapper absolute inset-0 flex items-center justify-center p-8 pointer-events-none z-10">
-                        <h2 className="text-[12vw] md:text-[8vw] font-bold tracking-tighter uppercase leading-[0.8] text-brand-100 mix-blend-difference opacity-90 group-hover:opacity-100 transition-opacity duration-500 text-center">
-                          {project.title}
-                        </h2>
-                      </div>
-
                       {/* View Case Study hover pill — top right of image */}
                       <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400 ease-out">
                         <div className="flex items-center gap-2 pl-4 pr-3 py-2 rounded-full bg-background/60 backdrop-blur-md border border-brand-500/40">

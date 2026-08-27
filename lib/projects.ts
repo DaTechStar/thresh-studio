@@ -16,6 +16,7 @@ export interface Project {
   category: string;
   year: string;
   image: string; // hero / primary image
+  vimeoId?: string; // optional vimeo video id
   accentColor: string; // tailwind oklch or hex used on case study page
 
   // Case study content
@@ -39,6 +40,7 @@ export const projects: Project[] = [
     year: "2026",
     image:
       "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=2560&auto=format&fit=crop",
+    vimeoId: "1128800824",
     accentColor: "#7DF9FF",
 
     description:
@@ -79,6 +81,7 @@ export const projects: Project[] = [
     year: "2025",
     image:
       "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2560&auto=format&fit=crop",
+    vimeoId: "1207032028",
     accentColor: "#00D3DA",
 
     description:
@@ -119,6 +122,7 @@ export const projects: Project[] = [
     year: "2025",
     image:
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=2560&auto=format&fit=crop",
+    vimeoId: "1149602611",
     accentColor: "#00A9AE",
 
     description:
@@ -159,6 +163,8 @@ export const projects: Project[] = [
     year: "2026",
     image:
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2560&auto=format&fit=crop",
+    vimeoId: "1121463132",
+
     accentColor: "#008084",
 
     description:

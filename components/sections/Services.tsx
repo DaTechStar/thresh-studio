@@ -124,7 +124,7 @@ export function Services() {
                             <img 
                               src={service.image} 
                               alt={service.name}
-                              className="absolute inset-0 w-full h-full object-cover mix-blend-luminosity hover:mix-blend-normal transition-all duration-1000 scale-105"
+                              className="absolute inset-0 w-full h-full object-cover md:mix-blend-luminosity hover:mix-blend-normal transition-all duration-1000 scale-105"
                             />
                             <div className="absolute inset-0 bg-brand-700/20 mix-blend-overlay pointer-events-none" />
                           </div>
