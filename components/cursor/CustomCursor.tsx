@@ -1,65 +1,73 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, AnimatePresence } from "motion/react";
-import { useCursor } from "./CursorContext";
-import { cn } from "@/lib/utils";
+import React, { useEffect, useState } from "react"
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  AnimatePresence,
+} from "motion/react"
+import { useCursor } from "./CursorContext"
+import { cn } from "@/lib/utils"
 
 export function CustomCursor() {
-  const { cursorState, magneticTarget } = useCursor();
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const { cursorState, magneticTarget } = useCursor()
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
 
   // Mouse position values
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
 
   // Spring physics for smooth trailing
-  const springConfig = { damping: 25, stiffness: 400, mass: 0.5 };
-  const cursorX = useSpring(mouseX, springConfig);
-  const cursorY = useSpring(mouseY, springConfig);
+  const springConfig = { damping: 25, stiffness: 400, mass: 0.5 }
+  const cursorX = useSpring(mouseX, springConfig)
+  const cursorY = useSpring(mouseY, springConfig)
 
   useEffect(() => {
     // Detect touch device - disable custom cursor if so
     if (window.matchMedia("(pointer: coarse)").matches) {
-      setIsTouchDevice(true);
-      return;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsTouchDevice(true)
+      return
     }
 
     const moveCursor = (e: MouseEvent) => {
-      let targetX = e.clientX;
-      let targetY = e.clientY;
+      let targetX = e.clientX
+      let targetY = e.clientY
 
       // Handle magnetic attraction
       if (cursorState === "magnetic" && magneticTarget) {
-        const { left, top, width, height } = magneticTarget.getBoundingClientRect();
-        const centerX = left + width / 2;
-        const centerY = top + height / 2;
-        
+        const { left, top, width, height } =
+          magneticTarget.getBoundingClientRect()
+        const centerX = left + width / 2
+        const centerY = top + height / 2
+
         // Calculate distance from center
-        const distanceX = e.clientX - centerX;
-        const distanceY = e.clientY - centerY;
-        
+        const distanceX = e.clientX - centerX
+        const distanceY = e.clientY - centerY
+
         // Attract toward center (strength based on distance)
-        targetX = centerX + distanceX * 0.2;
-        targetY = centerY + distanceY * 0.2;
+        targetX = centerX + distanceX * 0.2
+        targetY = centerY + distanceY * 0.2
       }
 
-      mouseX.set(targetX);
-      mouseY.set(targetY);
-    };
+      mouseX.set(targetX)
+      mouseY.set(targetY)
+    }
 
-    window.addEventListener("mousemove", moveCursor);
-    return () => window.removeEventListener("mousemove", moveCursor);
-  }, [mouseX, mouseY, cursorState, magneticTarget]);
+    window.addEventListener("mousemove", moveCursor)
+    return () => window.removeEventListener("mousemove", moveCursor)
+  }, [mouseX, mouseY, cursorState, magneticTarget])
 
-  if (isTouchDevice) return null;
+  if (isTouchDevice) return null
 
   const variants = {
     default: {
       width: 12,
       height: 12,
       backgroundColor: "#FFFFFF",
-      mixBlendMode: "difference" as any,
+      border: "1px solid rgba(0,0,0,0.1)",
+      mixBlendMode: "normal",
     },
     hidden: {
       width: 0,
@@ -70,7 +78,7 @@ export function CustomCursor() {
       width: 80,
       height: 80,
       backgroundColor: "#00D3DA",
-      mixBlendMode: "normal" as any,
+      mixBlendMode: "normal",
       color: "#000000",
     },
     explore: {
@@ -78,7 +86,7 @@ export function CustomCursor() {
       height: 100,
       backgroundColor: "rgba(0, 211, 218, 0)",
       border: "1px solid #00D3DA",
-      mixBlendMode: "normal" as any,
+      mixBlendMode: "normal",
       color: "#00D3DA",
     },
     drag: {
@@ -86,19 +94,20 @@ export function CustomCursor() {
       height: 60,
       backgroundColor: "#111111",
       border: "1px solid #333333",
-      mixBlendMode: "normal" as any,
+      mixBlendMode: "normal",
     },
     magnetic: {
       width: 40,
       height: 40,
       backgroundColor: "#FFFFFF",
-      mixBlendMode: "difference" as any,
+      border: "1px solid rgba(0,0,0,0.1)",
+      mixBlendMode: "normal",
     },
-  };
+  }
 
   return (
     <motion.div
-      className="pointer-events-none fixed left-0 top-0 z-[9999] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-xs font-medium uppercase tracking-widest text-transparent"
+      className="pointer-events-none fixed top-0 left-0 z-[9999] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-xs font-medium tracking-widest text-transparent uppercase"
       style={{
         x: cursorX,
         y: cursorY,
@@ -141,5 +150,5 @@ export function CustomCursor() {
         )}
       </AnimatePresence>
     </motion.div>
-  );
+  )
 }

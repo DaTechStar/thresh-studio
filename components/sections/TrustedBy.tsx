@@ -1,78 +1,72 @@
-"use client";
+"use client"
 
-import React, { useRef, useState } from "react";
-import { motion, useAnimationFrame, useMotionValue, useTransform, wrap } from "motion/react";
-import { useCursor } from "../cursor/CursorContext";
-import { cn } from "@/lib/utils";
-
-const clients = [
-  "GOOGLE", "SAMSUNG", "APPLE", "META", "AMAZON", "NETFLIX", "SPOTIFY",
-  "NVIDIA", "TESLA", "UBER", "AIRBNB", "STRIPE"
-];
-
-interface MarqueeRowProps {
-  items: string[];
-  baseVelocity: number;
-}
-
-function MarqueeRow({ items, baseVelocity = 100 }: MarqueeRowProps) {
-  const baseX = useMotionValue(0);
-  const { setCursorState } = useCursor();
-  
-  // Track hover to slow down
-  const [isHovered, setIsHovered] = useState(false);
-  const velocityFactor = useMotionValue(1);
-
-  useAnimationFrame((t, delta) => {
-    // Smoothly transition velocity factor based on hover
-    const targetFactor = isHovered ? 0.2 : 1;
-    velocityFactor.set(velocityFactor.get() + (targetFactor - velocityFactor.get()) * 0.1);
-
-    let moveBy = baseVelocity * (delta / 1000) * velocityFactor.get();
-    baseX.set(baseX.get() + moveBy);
-  });
-
-  const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
-
-  return (
-    <div 
-      className="flex whitespace-nowrap overflow-hidden py-4"
-      onMouseEnter={() => {
-        setIsHovered(true);
-        setCursorState("drag");
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setCursorState("default");
-      }}
-    >
-      <motion.div className="flex gap-16 md:gap-32 px-8" style={{ x }}>
-        {items.concat(items).concat(items).concat(items).map((client, i) => (
-          <span 
-            key={i} 
-            className="text-4xl md:text-7xl font-bold tracking-tighter text-transparent"
-            style={{ WebkitTextStroke: "1px var(--muted-foreground)" }}
-          >
-            {client}
-          </span>
-        ))}
-      </motion.div>
-    </div>
-  );
-}
+import React from "react"
+import { motion } from "motion/react"
+import { PageSkeleton } from "@/components/shared/PageSkeleton"
+import { useSettings } from "@/hooks/useSettings"
 
 export function TrustedBy() {
+  const { data, isLoading } = useSettings()
+
+  if (isLoading) {
+    return (
+      <section className="bg-background px-4 py-24 md:px-8">
+        <PageSkeleton variant="table" />
+      </section>
+    )
+  }
+
+  const rawBrands = data?.trustedBrands || []
+  const activeBrands = rawBrands
+    .filter((b) => b.isActive)
+    .sort((a, b) => a.order - b.order)
+
+  if (activeBrands.length === 0) return null
+
   return (
-    <section className="py-24 overflow-hidden bg-background">
-      <div className="mb-16 px-4 md:px-8">
-        <h2 className="text-xs uppercase tracking-[0.3em] text-neutral-600 font-mono">
+    <section className="overflow-hidden bg-background py-12">
+      <div className="mx-auto mb-8 max-w-[1400px] px-4 md:px-8">
+        <h2 className="text-center text-sm font-bold tracking-[0.2em] text-neutral-300 uppercase md:text-left">
           Trusted By
         </h2>
       </div>
-      <div className="flex flex-col gap-8 md:gap-16">
-        <MarqueeRow items={clients.slice(0, 6)} baseVelocity={-2} />
-        <MarqueeRow items={clients.slice(6, 12)} baseVelocity={2.5} />
+
+      {/* 
+        This container animates exactly the items uploaded. 
+        It starts off-screen to the left (-100% of its own width), 
+        and animates to off-screen right (100vw).
+      */}
+      <div className="relative w-full overflow-hidden py-8">
+        <motion.div
+          className="flex w-max items-center gap-20 md:gap-40"
+          initial={{ x: "-100%" }}
+          animate={{ x: "100vw" }}
+          transition={{
+            duration: 20, // Adjust this value to make it faster/slower
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        >
+          {activeBrands.map((client, i) => (
+            <div
+              key={i}
+              className="flex flex-shrink-0 items-center justify-center"
+            >
+              {client.logoUrl ? (
+                <img
+                  src={client.logoUrl}
+                  alt={client.name}
+                  className="max-h-20 max-w-[250px] object-contain drop-shadow-xl md:max-h-32 md:max-w-[350px]"
+                />
+              ) : (
+                <span className="text-5xl font-black tracking-tighter text-white drop-shadow-lg md:text-8xl">
+                  {client.name}
+                </span>
+              )}
+            </div>
+          ))}
+        </motion.div>
       </div>
     </section>
-  );
+  )
 }
