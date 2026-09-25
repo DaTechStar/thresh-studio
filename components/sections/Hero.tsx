@@ -117,10 +117,7 @@ export function Hero() {
               )
           } else {
             // Mobile: Simpler scroll effect, no pinning, no layout thrashing
-            gsap.to(textContainer.current, {
-              opacity: 0,
-              y: -50,
-              ease: "none",
+            const tlMobile = gsap.timeline({
               scrollTrigger: {
                 trigger: container.current,
                 start: "top top",
@@ -128,6 +125,26 @@ export function Hero() {
                 scrub: true,
               },
             })
+
+            tlMobile
+              .to(
+                textContainer.current,
+                {
+                  opacity: 0,
+                  y: -50,
+                  ease: "none",
+                },
+                0
+              )
+              .to(
+                ".hero-overlay",
+                {
+                  opacity: 0,
+                  backdropFilter: "blur(0px)",
+                  ease: "none",
+                },
+                0
+              )
           }
         }
       )
@@ -145,7 +162,7 @@ export function Hero() {
     >
       {/* Cinematic Glowing Background Gradients */}
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_50%_0%,var(--color-brand-600)_0%,transparent_50%)] opacity-30" />
-      <div className="pointer-events-none absolute top-1/4 left-1/4 z-0 h-[50vw] w-[50vw] rounded-full bg-brand-500/20 mix-blend-screen blur-[120px]" />
+      <div className="pointer-events-none absolute top-1/4 left-1/4 z-0 hidden h-[50vw] w-[50vw] rounded-full bg-brand-500/20 mix-blend-screen blur-[120px] md:block" />
 
       <div
         ref={textContainer}
@@ -208,13 +225,7 @@ export function Hero() {
         ref={videoWrapper}
         className="absolute right-0 bottom-[-5%] left-0 z-0 mx-auto h-[35vh] w-[90vw] transform-gpu overflow-hidden rounded-[20px] border border-brand-500/20 bg-neutral-600 shadow-[0_0_50px_rgba(0,22,23,0.8)] sm:bottom-[5%] sm:h-[40vh] sm:w-[60vw] sm:rounded-[30px]"
       >
-        <div
-          className="hero-overlay pointer-events-none absolute inset-0 z-10 bg-neutral-900/40"
-          style={{
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-          }}
-        />
+        <div className="hero-overlay pointer-events-none absolute inset-0 z-10 bg-neutral-900/40 md:backdrop-blur-[20px]" />
 
         {isBuffering && videoUrl && (
           <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/50">
