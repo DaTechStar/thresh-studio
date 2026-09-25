@@ -1,15 +1,11 @@
 "use client"
 
-import React, { useState, useRef } from "react"
-import {
-  motion,
-  AnimatePresence,
-  useScroll,
-  useMotionValueEvent,
-} from "motion/react"
+import React, { useState, useRef, useEffect } from "react"
 import { useCursor } from "../cursor/CursorContext"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import Image from "next/image"
+import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap"
 
 const services = [
   {
@@ -42,26 +38,126 @@ const services = [
   },
 ]
 
-export function Services() {
-  const [activeService, setActiveService] = useState<string>("01")
+function ServiceAccordion({
+  service,
+  isActive,
+}: {
+  service: (typeof services)[0]
+  isActive: boolean
+}) {
+  const contentRef = useRef<HTMLDivElement>(null)
   const { setCursorState } = useCursor()
 
+  useEffect(() => {
+    if (!contentRef.current) return
+    if (isActive) {
+      gsap.to(contentRef.current, {
+        height: "auto",
+        opacity: 1,
+        duration: 0.6,
+        ease: "power3.inOut",
+      })
+    } else {
+      gsap.to(contentRef.current, {
+        height: 0,
+        opacity: 0,
+        duration: 0.6,
+        ease: "power3.inOut",
+      })
+    }
+  }, [isActive])
+
+  return (
+    <div
+      className={cn(
+        "group relative flex cursor-none flex-col overflow-hidden border-b border-neutral-900 transition-colors duration-700",
+        isActive ? "bg-transparent" : ""
+      )}
+      onMouseEnter={() => setCursorState("explore")}
+      onMouseLeave={() => setCursorState("default")}
+    >
+      <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-transparent via-brand-500/5 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
+
+      <div className="relative z-10 flex items-center gap-6 px-2 py-5 md:gap-8 md:px-6 md:py-8">
+        <span
+          className={cn(
+            "font-mono text-[10px] transition-colors duration-500 md:text-xs",
+            isActive
+              ? "text-brand-300 drop-shadow-[0_0_10px_rgba(0,211,218,0.5)]"
+              : "text-neutral-700 group-hover:text-brand-500"
+          )}
+        >
+          {service.id}
+        </span>
+        <h3
+          className={cn(
+            "text-2xl font-bold tracking-tighter uppercase transition-colors duration-500 md:text-4xl",
+            isActive
+              ? "text-neutral-100"
+              : "text-neutral-600 group-hover:text-neutral-300"
+          )}
+        >
+          {service.name}
+        </h3>
+      </div>
+
+      <div
+        ref={contentRef}
+        className="h-0 overflow-hidden px-2 opacity-0 md:px-6"
+      >
+        <div className="flex flex-col items-start gap-6 pb-6 md:flex-row">
+          <div className="relative h-[20vh] w-full overflow-hidden rounded-xl shadow-2xl md:h-[25vh] md:w-1/2">
+            <Image
+              src={service.image}
+              alt={service.name}
+              fill
+              className="scale-105 object-cover transition-all duration-1000 hover:mix-blend-normal md:mix-blend-luminosity"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-brand-700/20 mix-blend-overlay" />
+          </div>
+
+          <div className="flex h-full w-full flex-col justify-end md:w-1/2">
+            <p className="text-sm leading-relaxed text-neutral-400 md:text-base">
+              {service.desc}
+            </p>
+            <Link
+              href={`/work?category=${service.name.toLowerCase().replace(/\s+/g, "-")}`}
+              className="mt-4 block w-fit rounded-full border border-brand-500/30 px-4 py-2 text-center font-mono text-[10px] tracking-[0.2em] text-brand-200 uppercase transition-colors hover:bg-brand-500/10 md:mt-6 md:px-6 md:py-3"
+              onMouseEnter={() => setCursorState("link")}
+              onMouseLeave={() => setCursorState("explore")}
+            >
+              Explore {service.name}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function Services() {
+  const [activeService, setActiveService] = useState<string>("01")
   const sectionRef = useRef<HTMLElement>(null)
 
-  // Track scroll progress within the 400vh tall container
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end end"],
-  })
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    // Map the 0-1 progress to an index between 0 and 3
-    const index = Math.min(
-      services.length - 1,
-      Math.floor(latest * services.length)
-    )
-    setActiveService(services[index].id)
-  })
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate: (self) => {
+          const index = Math.min(
+            services.length - 1,
+            Math.floor(self.progress * services.length)
+          )
+          setActiveService(services[index].id)
+        },
+      })
+    },
+    { scope: sectionRef }
+  )
 
   return (
     <section
@@ -69,13 +165,10 @@ export function Services() {
       ref={sectionRef}
       className="relative h-[400vh] w-full border-t border-neutral-800 bg-background"
     >
-      {/* Sticky container that stays on screen while scrolling through the section */}
       <div className="sticky top-0 flex h-screen w-full flex-col justify-center overflow-hidden px-4 py-20 md:px-16">
-        {/* Cinematic Background Glow */}
         <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_50%,var(--color-brand-700)_0%,transparent_70%)] opacity-20" />
 
         <div className="relative z-10 mx-auto flex h-full w-full max-w-screen-2xl flex-col items-center gap-12 md:flex-row md:gap-24">
-          {/* Left Side: Header */}
           <div className="flex h-fit flex-col md:w-1/3">
             <h2 className="text-[12vw] leading-[0.85] font-bold tracking-[-0.04em] text-neutral-100 uppercase md:text-[6vw]">
               Our <br />
@@ -87,90 +180,14 @@ export function Services() {
             </p>
           </div>
 
-          {/* Right Side: Expanding Interactive Accordion */}
           <div className="mt-8 flex w-full flex-col md:mt-0 md:w-2/3">
-            {services.map((service) => {
-              const isActive = activeService === service.id
-
-              return (
-                <div
-                  key={service.id}
-                  className={cn(
-                    "group relative flex cursor-none flex-col overflow-hidden border-b border-neutral-900 transition-colors duration-700",
-                    isActive ? "bg-transparent" : ""
-                  )}
-                  onMouseEnter={() => setCursorState("explore")}
-                  onMouseLeave={() => setCursorState("default")}
-                >
-                  {/* Subtle cyan hover glow for the row */}
-                  <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-transparent via-brand-500/5 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
-
-                  {/* Header (Always Visible) */}
-                  <div className="relative z-10 flex items-center gap-6 px-2 py-5 md:gap-8 md:px-6 md:py-8">
-                    <span
-                      className={cn(
-                        "font-mono text-[10px] transition-colors duration-500 md:text-xs",
-                        isActive
-                          ? "text-brand-300 drop-shadow-[0_0_10px_rgba(0,211,218,0.5)]"
-                          : "text-neutral-700 group-hover:text-brand-500"
-                      )}
-                    >
-                      {service.id}
-                    </span>
-                    <h3
-                      className={cn(
-                        "text-2xl font-bold tracking-tighter uppercase transition-colors duration-500 md:text-4xl",
-                        isActive
-                          ? "text-neutral-100"
-                          : "text-neutral-600 group-hover:text-neutral-300"
-                      )}
-                    >
-                      {service.name}
-                    </h3>
-                  </div>
-
-                  {/* Expanding Content Container */}
-                  <AnimatePresence initial={false}>
-                    {isActive && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-                        className="overflow-hidden px-2 md:px-6"
-                      >
-                        <div className="flex flex-col items-start gap-6 pb-6 md:flex-row">
-                          {/* Image Reveal */}
-                          <div className="relative h-[20vh] w-full overflow-hidden rounded-xl shadow-2xl md:h-[25vh] md:w-1/2">
-                            <img
-                              src={service.image}
-                              alt={service.name}
-                              className="absolute inset-0 h-full w-full scale-105 object-cover transition-all duration-1000 hover:mix-blend-normal md:mix-blend-luminosity"
-                            />
-                            <div className="pointer-events-none absolute inset-0 bg-brand-700/20 mix-blend-overlay" />
-                          </div>
-
-                          {/* Description Reveal */}
-                          <div className="flex h-full w-full flex-col justify-end md:w-1/2">
-                            <p className="text-sm leading-relaxed text-neutral-400 md:text-base">
-                              {service.desc}
-                            </p>
-                            <Link
-                              href={`/work?category=${service.name.toLowerCase().replace(/\s+/g, "-")}`}
-                              className="mt-4 block w-fit rounded-full border border-brand-500/30 px-4 py-2 text-center font-mono text-[10px] tracking-[0.2em] text-brand-200 uppercase transition-colors hover:bg-brand-500/10 md:mt-6 md:px-6 md:py-3"
-                              onMouseEnter={() => setCursorState("link")}
-                              onMouseLeave={() => setCursorState("explore")}
-                            >
-                              Explore {service.name}
-                            </Link>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )
-            })}
+            {services.map((service) => (
+              <ServiceAccordion
+                key={service.id}
+                service={service}
+                isActive={activeService === service.id}
+              />
+            ))}
           </div>
         </div>
       </div>

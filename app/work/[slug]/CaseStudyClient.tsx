@@ -2,6 +2,7 @@
 
 import React, { useRef, useMemo } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowLeft, ArrowUpRight } from "lucide-react"
 import { gsap, useGSAP } from "@/lib/gsap"
 import { useCursor } from "@/components/cursor/CursorContext"
@@ -9,7 +10,6 @@ import { Footer } from "@/components/sections/Footer"
 import { Contact } from "@/components/sections/Contact"
 import { useQuery } from "@tanstack/react-query"
 import { ProjectFormValues } from "@/lib/schemas"
-import { PageSkeleton } from "@/components/shared/PageSkeleton"
 import { EmptyState } from "@/components/shared/EmptyState"
 
 export function CaseStudyClient({ slug }: { slug: string }) {
@@ -453,10 +453,11 @@ export function CaseStudyClient({ slug }: { slug: string }) {
                       className="h-full w-full object-cover transition-all duration-700"
                     />
                   ) : (
-                    <img
+                    <Image
                       src={src}
                       alt={`${project.title} gallery item`}
-                      className="h-full w-full object-cover transition-all duration-700 hover:scale-[1.04]"
+                      fill
+                      className="object-cover transition-all duration-700 hover:scale-[1.04]"
                     />
                   )}
                 </div>

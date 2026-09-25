@@ -1,35 +1,84 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  AnimatePresence,
-} from "motion/react"
+import React, { useEffect, useState, useRef } from "react"
+import { gsap, useGSAP } from "@/lib/gsap"
 import { useCursor } from "./CursorContext"
-import { cn } from "@/lib/utils"
+
+const variants: Record<string, gsap.TweenVars> = {
+  default: {
+    width: 12,
+    height: 12,
+    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(0,0,0,0.1)",
+    borderWidth: 1,
+    mixBlendMode: "normal",
+    color: "transparent",
+  },
+  hidden: {
+    width: 0,
+    height: 0,
+    opacity: 0,
+  },
+  project: {
+    width: 80,
+    height: 80,
+    backgroundColor: "#00D3DA",
+    borderColor: "transparent",
+    borderWidth: 0,
+    mixBlendMode: "normal",
+    color: "#000000",
+  },
+  explore: {
+    width: 100,
+    height: 100,
+    backgroundColor: "rgba(0, 211, 218, 0)",
+    borderColor: "#00D3DA",
+    borderWidth: 1,
+    mixBlendMode: "normal",
+    color: "#00D3DA",
+  },
+  drag: {
+    width: 60,
+    height: 60,
+    backgroundColor: "#111111",
+    borderColor: "#333333",
+    borderWidth: 1,
+    mixBlendMode: "normal",
+    color: "#FFFFFF",
+  },
+  magnetic: {
+    width: 40,
+    height: 40,
+    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(0,0,0,0.1)",
+    borderWidth: 1,
+    mixBlendMode: "normal",
+    color: "transparent",
+  },
+}
 
 export function CustomCursor() {
   const { cursorState, magneticTarget } = useCursor()
   const [isTouchDevice, setIsTouchDevice] = useState(false)
 
-  // Mouse position values
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
+  const cursorRef = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLSpanElement>(null)
 
-  // Spring physics for smooth trailing
-  const springConfig = { damping: 25, stiffness: 400, mass: 0.5 }
-  const cursorX = useSpring(mouseX, springConfig)
-  const cursorY = useSpring(mouseY, springConfig)
+  // Setup GSAP quickTo for highly performant mouse tracking
+  useGSAP(() => {
+    if (!cursorRef.current) return
 
-  useEffect(() => {
-    // Detect touch device - disable custom cursor if so
-    if (window.matchMedia("(pointer: coarse)").matches) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsTouchDevice(true)
-      return
-    }
+    // Set initial position offscreen to avoid flash
+    gsap.set(cursorRef.current, { x: -100, y: -100 })
+
+    const xTo = gsap.quickTo(cursorRef.current, "x", {
+      duration: 0.5,
+      ease: "power3",
+    })
+    const yTo = gsap.quickTo(cursorRef.current, "y", {
+      duration: 0.5,
+      ease: "power3",
+    })
 
     const moveCursor = (e: MouseEvent) => {
       let targetX = e.clientX
@@ -42,113 +91,79 @@ export function CustomCursor() {
         const centerX = left + width / 2
         const centerY = top + height / 2
 
-        // Calculate distance from center
         const distanceX = e.clientX - centerX
         const distanceY = e.clientY - centerY
 
-        // Attract toward center (strength based on distance)
         targetX = centerX + distanceX * 0.2
         targetY = centerY + distanceY * 0.2
       }
 
-      mouseX.set(targetX)
-      mouseY.set(targetY)
+      xTo(targetX)
+      yTo(targetY)
     }
 
     window.addEventListener("mousemove", moveCursor)
     return () => window.removeEventListener("mousemove", moveCursor)
-  }, [mouseX, mouseY, cursorState, magneticTarget])
+  }, [cursorState, magneticTarget])
+
+  // Handle state changes (size, color, text)
+  useEffect(() => {
+    if (!cursorRef.current) return
+    const v = variants[cursorState] || variants.default
+
+    gsap.to(cursorRef.current, {
+      ...v,
+      duration: 0.4,
+      ease: "back.out(1.5)",
+    })
+
+    if (textRef.current) {
+      if (
+        cursorState === "project" ||
+        cursorState === "explore" ||
+        cursorState === "drag"
+      ) {
+        gsap.fromTo(
+          textRef.current,
+          { scale: 0.5, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(2)" }
+        )
+      } else {
+        gsap.to(textRef.current, { scale: 0.5, opacity: 0, duration: 0.2 })
+      }
+    }
+  }, [cursorState])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (window.matchMedia("(pointer: coarse)").matches) {
+        setIsTouchDevice(true)
+      }
+    }, 0)
+    return () => clearTimeout(timeout)
+  }, [])
 
   if (isTouchDevice) return null
 
-  const variants = {
-    default: {
-      width: 12,
-      height: 12,
-      backgroundColor: "#FFFFFF",
-      border: "1px solid rgba(0,0,0,0.1)",
-      mixBlendMode: "normal",
-    },
-    hidden: {
-      width: 0,
-      height: 0,
-      opacity: 0,
-    },
-    project: {
-      width: 80,
-      height: 80,
-      backgroundColor: "#00D3DA",
-      mixBlendMode: "normal",
-      color: "#000000",
-    },
-    explore: {
-      width: 100,
-      height: 100,
-      backgroundColor: "rgba(0, 211, 218, 0)",
-      border: "1px solid #00D3DA",
-      mixBlendMode: "normal",
-      color: "#00D3DA",
-    },
-    drag: {
-      width: 60,
-      height: 60,
-      backgroundColor: "#111111",
-      border: "1px solid #333333",
-      mixBlendMode: "normal",
-    },
-    magnetic: {
-      width: 40,
-      height: 40,
-      backgroundColor: "#FFFFFF",
-      border: "1px solid rgba(0,0,0,0.1)",
-      mixBlendMode: "normal",
-    },
-  }
+  let textContent = ""
+  if (cursorState === "project") textContent = "View"
+  if (cursorState === "drag") textContent = "← →"
+  if (cursorState === "explore") textContent = "Explore"
 
   return (
-    <motion.div
-      className="pointer-events-none fixed top-0 left-0 z-[9999] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-xs font-medium tracking-widest text-transparent uppercase"
+    <div
+      ref={cursorRef}
+      className="pointer-events-none fixed top-0 left-0 z-[9999] flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-solid text-xs font-medium tracking-widest uppercase"
       style={{
-        x: cursorX,
-        y: cursorY,
+        width: 12,
+        height: 12,
+        backgroundColor: "#FFFFFF",
+        borderColor: "rgba(0,0,0,0.1)",
       }}
-      animate={cursorState}
-      variants={variants}
-      transition={{ type: "tween", ease: "backOut", duration: 0.3 }}
     >
-      <AnimatePresence mode="wait">
-        {cursorState === "project" && (
-          <motion.span
-            key="project"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-          >
-            View
-          </motion.span>
-        )}
-        {cursorState === "drag" && (
-          <motion.span
-            key="drag"
-            className="text-foreground"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-          >
-            ← →
-          </motion.span>
-        )}
-        {cursorState === "explore" && (
-          <motion.span
-            key="explore"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-          >
-            Explore
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </motion.div>
+      <span ref={textRef} className="opacity-0">
+        {textContent}
+      </span>
+    </div>
   )
 }

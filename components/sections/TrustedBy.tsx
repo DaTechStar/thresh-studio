@@ -1,12 +1,31 @@
 "use client"
 
-import React from "react"
-import { motion } from "motion/react"
+import React, { useRef } from "react"
+import { gsap, useGSAP } from "@/lib/gsap"
+import Image from "next/image"
 import { PageSkeleton } from "@/components/shared/PageSkeleton"
 import { useSettings } from "@/hooks/useSettings"
 
 export function TrustedBy() {
   const { data, isLoading } = useSettings()
+  const marqueeRef = useRef<HTMLDivElement>(null)
+
+  useGSAP(
+    () => {
+      if (!marqueeRef.current) return
+      gsap.fromTo(
+        marqueeRef.current,
+        { x: "-100%" },
+        {
+          x: "100vw",
+          duration: 20,
+          repeat: -1,
+          ease: "none",
+        }
+      )
+    },
+    { dependencies: [isLoading, data] }
+  )
 
   if (isLoading) {
     return (
@@ -31,21 +50,10 @@ export function TrustedBy() {
         </h2>
       </div>
 
-      {/* 
-        This container animates exactly the items uploaded. 
-        It starts off-screen to the left (-100% of its own width), 
-        and animates to off-screen right (100vw).
-      */}
       <div className="relative w-full overflow-hidden py-8">
-        <motion.div
+        <div
+          ref={marqueeRef}
           className="flex w-max items-center gap-20 md:gap-40"
-          initial={{ x: "-100%" }}
-          animate={{ x: "100vw" }}
-          transition={{
-            duration: 20, // Adjust this value to make it faster/slower
-            repeat: Infinity,
-            ease: "linear",
-          }}
         >
           {activeBrands.map((client, i) => (
             <div
@@ -53,11 +61,15 @@ export function TrustedBy() {
               className="flex flex-shrink-0 items-center justify-center"
             >
               {client.logoUrl ? (
-                <img
-                  src={client.logoUrl}
-                  alt={client.name}
-                  className="max-h-20 max-w-[250px] object-contain drop-shadow-xl md:max-h-32 md:max-w-[350px]"
-                />
+                <div className="relative max-h-20 max-w-[250px] md:max-h-32 md:max-w-[350px]">
+                  <Image
+                    src={client.logoUrl}
+                    alt={client.name}
+                    width={250}
+                    height={100}
+                    className="h-full w-full object-contain drop-shadow-xl"
+                  />
+                </div>
               ) : (
                 <span className="text-5xl font-black tracking-tighter text-white drop-shadow-lg md:text-8xl">
                   {client.name}
@@ -65,7 +77,7 @@ export function TrustedBy() {
               )}
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

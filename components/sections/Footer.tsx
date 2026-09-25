@@ -2,19 +2,65 @@
 
 import React, { useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useCursor } from "../cursor/CursorContext"
 import { gsap, useGSAP } from "@/lib/gsap"
-import { motion } from "motion/react"
 import { useSettings } from "@/hooks/useSettings"
 
 export function Footer() {
   const { setCursorState } = useCursor()
   const container = useRef<HTMLElement>(null)
+  const orb1Ref = useRef<HTMLDivElement>(null)
+  const orb2Ref = useRef<HTMLDivElement>(null)
+  const orb3Ref = useRef<HTMLDivElement>(null)
+  const orb4Ref = useRef<HTMLDivElement>(null)
   const { data } = useSettings()
 
   useGSAP(
     () => {
       if (!container.current) return
+
+      // Orbs Animation
+      gsap.to(orb1Ref.current, {
+        keyframes: {
+          scale: [1, 1.2, 1],
+          x: ["0%", "10%", "-5%", "0%"],
+          y: ["0%", "-10%", "5%", "0%"],
+        },
+        duration: 15,
+        repeat: -1,
+        ease: "linear",
+      })
+      gsap.to(orb2Ref.current, {
+        keyframes: {
+          scale: [1, 1.3, 1],
+          x: ["0%", "-10%", "15%", "0%"],
+          y: ["0%", "10%", "-5%", "0%"],
+        },
+        duration: 18,
+        repeat: -1,
+        ease: "linear",
+      })
+      gsap.to(orb3Ref.current, {
+        keyframes: {
+          scale: [1, 1.1, 1.4, 1],
+          x: ["0%", "10%", "-15%", "0%"],
+          y: ["0%", "-5%", "15%", "0%"],
+        },
+        duration: 20,
+        repeat: -1,
+        ease: "linear",
+      })
+      gsap.to(orb4Ref.current, {
+        keyframes: {
+          scale: [1, 1.5, 1],
+          x: ["0%", "-20%", "5%", "0%"],
+          y: ["0%", "20%", "-10%", "0%"],
+        },
+        duration: 25,
+        repeat: -1,
+        ease: "linear",
+      })
 
       // Simple parallax effect for the massive text at the bottom
       gsap.fromTo(
@@ -55,43 +101,23 @@ export function Footer() {
           }}
         />
         {/* Bright Cyan Orb */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            x: ["0%", "10%", "-5%", "0%"],
-            y: ["0%", "-10%", "5%", "0%"],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        <div
+          ref={orb1Ref}
           className="absolute -top-[10%] -left-[10%] h-[60vw] w-[60vw] rounded-full bg-brand-200/20 mix-blend-screen blur-[120px]"
         />
         {/* Mid Teal Orb */}
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            x: ["0%", "-10%", "15%", "0%"],
-            y: ["0%", "10%", "-5%", "0%"],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        <div
+          ref={orb2Ref}
           className="absolute top-[20%] right-[0%] h-[50vw] w-[50vw] rounded-full bg-brand-400/30 mix-blend-screen blur-[140px]"
         />
         {/* Very Dark Cyan Orb for contrast depth */}
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1.4, 1],
-            x: ["0%", "10%", "-15%", "0%"],
-            y: ["0%", "-5%", "15%", "0%"],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        <div
+          ref={orb3Ref}
           className="absolute -bottom-[20%] left-[20%] h-[80vw] w-[80vw] rounded-full bg-brand-600/60 mix-blend-screen blur-[150px]"
         />
         {/* Brightest Brand Accent for intersection glow */}
-        <motion.div
-          animate={{
-            scale: [1, 1.5, 1],
-            x: ["0%", "-20%", "5%", "0%"],
-            y: ["0%", "20%", "-10%", "0%"],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        <div
+          ref={orb4Ref}
           className="absolute right-[-10%] bottom-[-10%] h-[40vw] w-[40vw] rounded-full bg-brand-100/10 mix-blend-screen blur-[130px]"
         />
       </div>
@@ -178,11 +204,14 @@ export function Footer() {
 
       {/* Massive Brand Mark at the bottom */}
       <div className="relative z-10 mt-auto flex w-full flex-col items-center justify-end overflow-hidden pt-24">
-        <img
-          src="/logo.png"
-          alt="Thresh Studio"
-          className="footer-logo h-auto w-[80vw] object-contain opacity-80 mix-blend-plus-lighter md:w-[60vw]"
-        />
+        <div className="relative mt-12 mb-4 h-24 w-full md:h-40 xl:h-60">
+          <Image
+            src="/logo.png"
+            alt="Thresh Studio"
+            fill
+            className="footer-logo object-contain opacity-80 mix-blend-plus-lighter"
+          />
+        </div>
 
         <div className="mt-8 flex w-full flex-col items-center justify-between gap-6 border-t border-neutral-800 pt-8 font-mono text-xs tracking-[0.2em] text-neutral-400 uppercase md:flex-row md:text-sm">
           <p className="w-full text-center md:w-1/3 md:text-left">

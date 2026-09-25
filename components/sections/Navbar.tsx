@@ -2,23 +2,15 @@
 
 import React, { useState, useEffect } from "react"
 import { useCursor } from "../cursor/CursorContext"
-import { cn } from "@/lib/utils"
 import { useLenis } from "lenis/react"
 import Link from "next/link"
+import Image from "next/image"
 
 export function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false)
   const { setCursorState } = useCursor()
   const lenis = useLenis()
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  // (Removed unused isScrolled state)
 
   const handleNavClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -47,9 +39,11 @@ export function Navbar() {
           onMouseEnter={() => setCursorState("magnetic")}
           onMouseLeave={() => setCursorState("default")}
         >
-          <img
+          <Image
             src="/logo.png"
             alt="Thresh Studio"
+            width={120}
+            height={32}
             className="h-6 w-auto transition-transform duration-700 group-hover:scale-105 md:h-8"
           />
         </Link>
