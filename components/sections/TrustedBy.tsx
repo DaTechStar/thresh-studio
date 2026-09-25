@@ -3,7 +3,7 @@
 import React, { useRef } from "react"
 import { gsap, useGSAP } from "@/lib/gsap"
 import Image from "next/image"
-import { PageSkeleton } from "@/components/shared/PageSkeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useSettings } from "@/hooks/useSettings"
 
 export function TrustedBy() {
@@ -29,8 +29,22 @@ export function TrustedBy() {
 
   if (isLoading) {
     return (
-      <section className="bg-background px-4 py-24 md:px-8">
-        <PageSkeleton variant="table" />
+      <section className="overflow-hidden bg-background py-12">
+        <div className="mx-auto mb-8 max-w-[1400px] px-4 md:px-8">
+          <Skeleton className="h-4 w-24 bg-neutral-800 md:h-5 md:w-32" />
+        </div>
+        <div className="relative flex w-full overflow-hidden px-4 py-8">
+          <div className="flex w-max items-center">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-shrink-0 items-center justify-center pr-20 md:pr-40"
+              >
+                <Skeleton className="h-20 w-[150px] bg-neutral-800 md:h-32 md:w-[250px]" />
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     )
   }
