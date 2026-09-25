@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
 import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap"
+import { ChevronDown } from "lucide-react"
 
 const services = [
   {
@@ -81,27 +82,39 @@ function ServiceAccordion({
     >
       <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-transparent via-brand-500/5 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
 
-      <div className="relative z-10 flex items-center gap-6 px-2 py-5 md:gap-8 md:px-6 md:py-8">
-        <span
-          className={cn(
-            "font-mono text-[10px] transition-colors duration-500 md:text-xs",
-            isActive
-              ? "text-brand-300 drop-shadow-[0_0_10px_rgba(0,211,218,0.5)]"
-              : "text-neutral-700 group-hover:text-brand-500"
-          )}
-        >
-          {service.id}
-        </span>
-        <h3
-          className={cn(
-            "text-2xl font-bold tracking-tighter uppercase transition-colors duration-500 md:text-4xl",
-            isActive
-              ? "text-neutral-100"
-              : "text-neutral-600 group-hover:text-neutral-300"
-          )}
-        >
-          {service.name}
-        </h3>
+      <div className="relative z-10 flex w-full items-center justify-between px-2 py-5 md:px-6 md:py-8">
+        <div className="flex items-center gap-6 md:gap-8">
+          <span
+            className={cn(
+              "font-mono text-[10px] transition-colors duration-500 md:text-xs",
+              isActive
+                ? "text-brand-300 drop-shadow-[0_0_10px_rgba(0,211,218,0.5)]"
+                : "text-neutral-400 group-hover:text-brand-500"
+            )}
+          >
+            {service.id}
+          </span>
+          <h3
+            className={cn(
+              "text-2xl font-bold tracking-tighter uppercase transition-colors duration-500 md:text-4xl",
+              isActive
+                ? "text-neutral-100"
+                : "text-neutral-500 group-hover:text-neutral-300"
+            )}
+          >
+            {service.name}
+          </h3>
+        </div>
+
+        {/* Mobile Accordion Indicator */}
+        <div className="md:hidden">
+          <ChevronDown
+            className={cn(
+              "h-5 w-5 transition-transform duration-500",
+              isActive ? "rotate-180 text-brand-300" : "text-neutral-500"
+            )}
+          />
+        </div>
       </div>
 
       <div
