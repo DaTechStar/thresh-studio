@@ -15,10 +15,10 @@ export function TrustedBy() {
       if (!marqueeRef.current) return
       gsap.fromTo(
         marqueeRef.current,
-        { x: "-100%" },
+        { xPercent: 0 },
         {
-          x: "100vw",
-          duration: 20,
+          xPercent: -50,
+          duration: 30,
           repeat: -1,
           ease: "none",
         }
@@ -42,6 +42,9 @@ export function TrustedBy() {
 
   if (activeBrands.length === 0) return null
 
+  // Duplicate brands heavily to ensure it overflows the screen and loops perfectly seamlessly
+  const displayBrands = Array(8).fill(activeBrands).flat()
+
   return (
     <section className="overflow-hidden bg-background py-12">
       <div className="mx-auto mb-8 max-w-[1400px] px-4 md:px-8">
@@ -50,15 +53,12 @@ export function TrustedBy() {
         </h2>
       </div>
 
-      <div className="relative w-full overflow-hidden py-8">
-        <div
-          ref={marqueeRef}
-          className="flex w-max items-center gap-20 md:gap-40"
-        >
-          {activeBrands.map((client, i) => (
+      <div className="relative flex w-full overflow-hidden py-8">
+        <div ref={marqueeRef} className="flex w-max items-center">
+          {displayBrands.map((client, i) => (
             <div
               key={i}
-              className="flex flex-shrink-0 items-center justify-center"
+              className="flex flex-shrink-0 items-center justify-center pr-20 md:pr-40"
             >
               {client.logoUrl ? (
                 <div className="relative max-h-20 max-w-[250px] md:max-h-32 md:max-w-[350px]">

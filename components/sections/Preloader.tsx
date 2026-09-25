@@ -15,6 +15,15 @@ export function Preloader() {
     () => {
       if (!containerRef.current) return
 
+      // Only play once per session
+      if (sessionStorage.getItem("preloaderPlayed")) {
+        gsap.set(containerRef.current, { display: "none" })
+        setIsMounted(false)
+        return
+      }
+
+      sessionStorage.setItem("preloaderPlayed", "true")
+
       const tl = gsap.timeline({
         onComplete: () => {
           setIsMounted(false)
@@ -67,7 +76,7 @@ export function Preloader() {
         delay: 0.2,
       })
     },
-    { scope: containerRef }
+    { scope: containerRef, dependencies: [] }
   )
 
   if (!isMounted) return null
