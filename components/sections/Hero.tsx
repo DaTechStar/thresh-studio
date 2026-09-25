@@ -72,48 +72,63 @@ export function Hero() {
           )
 
           // Scroll Choreography
-          const tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: container.current,
-              start: "top top",
-              end: "+=200%",
-              scrub: 1,
-              pin: true,
-            },
-          })
+          if (isDesktop) {
+            const tl = gsap.timeline({
+              scrollTrigger: {
+                trigger: container.current,
+                start: "top top",
+                end: "+=200%",
+                scrub: 1,
+                pin: true,
+              },
+            })
 
-          tl.to(
-            textContainer.current,
-            {
-              scale: 1.5,
-              opacity: 0,
-              filter: isDesktop ? "blur(20px)" : "blur(0px)",
-              duration: 1,
-              ease: "power2.inOut",
-            },
-            0
-          )
-            .to(
-              videoWrapper.current,
+            tl.to(
+              textContainer.current,
               {
-                width: "100%",
-                height: "100vh",
-                borderRadius: "0px",
-                bottom: "0",
-                duration: 1.5,
+                scale: 1.5,
+                opacity: 0,
+                filter: "blur(20px)",
+                duration: 1,
                 ease: "power2.inOut",
               },
               0
             )
-            .to(
-              ".hero-overlay",
-              {
-                opacity: 0,
-                backdropFilter: "blur(0px)",
-                duration: 1.5,
+              .to(
+                videoWrapper.current,
+                {
+                  width: "100%",
+                  height: "100vh",
+                  borderRadius: "0px",
+                  bottom: "0",
+                  duration: 1.5,
+                  ease: "power2.inOut",
+                },
+                0
+              )
+              .to(
+                ".hero-overlay",
+                {
+                  opacity: 0,
+                  backdropFilter: "blur(0px)",
+                  duration: 1.5,
+                },
+                0
+              )
+          } else {
+            // Mobile: Simpler scroll effect, no pinning, no layout thrashing
+            gsap.to(textContainer.current, {
+              opacity: 0,
+              y: -50,
+              ease: "none",
+              scrollTrigger: {
+                trigger: container.current,
+                start: "top top",
+                end: "bottom center",
+                scrub: true,
               },
-              0
-            )
+            })
+          }
         }
       )
     },
