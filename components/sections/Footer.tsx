@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useCursor } from "../cursor/CursorContext"
 import { gsap, useGSAP } from "@/lib/gsap"
 import { useSettings } from "@/hooks/useSettings"
+import { FaInstagram, FaLinkedinIn, FaVimeoV, FaTwitter } from "react-icons/fa"
 
 export function Footer() {
   const { setCursorState } = useCursor()
@@ -132,7 +133,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-row gap-16 font-mono text-sm tracking-[0.2em] uppercase md:gap-32">
+          <div className="flex w-full flex-row justify-between font-mono text-sm tracking-[0.2em] uppercase md:w-auto md:justify-start md:gap-32">
             <div className="flex flex-col gap-6">
               <span className="mb-2 text-neutral-400">Menu</span>
               <Link
@@ -218,17 +219,18 @@ export function Footer() {
             © 2026 THRESH STUDIO LLC
           </p>
 
-          <div className="flex w-full justify-center gap-6 md:w-1/3 md:gap-10">
+          <div className="flex w-full justify-center gap-6 md:w-1/3 md:gap-8">
             {data?.instagramUrl && (
               <a
                 href={data.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="cursor-none text-neutral-100 transition-colors hover:text-brand-300"
+                className="group flex cursor-none items-center justify-center rounded-full border border-neutral-800 bg-neutral-900/50 p-3 transition-colors hover:border-brand-300 hover:bg-brand-500/10"
                 onMouseEnter={() => setCursorState("magnetic")}
                 onMouseLeave={() => setCursorState("default")}
               >
-                Instagram
+                <FaInstagram className="h-4 w-4 text-neutral-100 transition-colors group-hover:text-brand-300" />
+                <span className="sr-only">Instagram</span>
               </a>
             )}
             {data?.linkedinUrl && (
@@ -236,11 +238,12 @@ export function Footer() {
                 href={data.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="cursor-none text-neutral-100 transition-colors hover:text-brand-300"
+                className="group flex cursor-none items-center justify-center rounded-full border border-neutral-800 bg-neutral-900/50 p-3 transition-colors hover:border-brand-300 hover:bg-brand-500/10"
                 onMouseEnter={() => setCursorState("magnetic")}
                 onMouseLeave={() => setCursorState("default")}
               >
-                LinkedIn
+                <FaLinkedinIn className="h-4 w-4 text-neutral-100 transition-colors group-hover:text-brand-300" />
+                <span className="sr-only">LinkedIn</span>
               </a>
             )}
             {data?.vimeoUrl && (
@@ -248,11 +251,12 @@ export function Footer() {
                 href={data.vimeoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="cursor-none text-neutral-100 transition-colors hover:text-brand-300"
+                className="group flex cursor-none items-center justify-center rounded-full border border-neutral-800 bg-neutral-900/50 p-3 transition-colors hover:border-brand-300 hover:bg-brand-500/10"
                 onMouseEnter={() => setCursorState("magnetic")}
                 onMouseLeave={() => setCursorState("default")}
               >
-                Vimeo
+                <FaVimeoV className="h-4 w-4 text-neutral-100 transition-colors group-hover:text-brand-300" />
+                <span className="sr-only">Vimeo</span>
               </a>
             )}
             {data?.twitterUrl && (
@@ -260,11 +264,12 @@ export function Footer() {
                 href={data.twitterUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="cursor-none text-neutral-100 transition-colors hover:text-brand-300"
+                className="group flex cursor-none items-center justify-center rounded-full border border-neutral-800 bg-neutral-900/50 p-3 transition-colors hover:border-brand-300 hover:bg-brand-500/10"
                 onMouseEnter={() => setCursorState("magnetic")}
                 onMouseLeave={() => setCursorState("default")}
               >
-                X
+                <FaTwitter className="h-4 w-4 text-neutral-100 transition-colors group-hover:text-brand-300" />
+                <span className="sr-only">X (Twitter)</span>
               </a>
             )}
           </div>
