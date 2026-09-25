@@ -22,82 +22,100 @@ export function Hero() {
     () => {
       if (!container.current) return
 
-      // Split the text into letters for a premium, staggering reveal
       const letters = gsap.utils.toArray(".hero-letter")
+      const mm = gsap.matchMedia()
 
-      gsap.fromTo(
-        letters,
-        { y: 150, opacity: 0, rotateX: -90, filter: "blur(20px)" },
+      mm.add(
         {
-          y: 0,
-          opacity: 1,
-          rotateX: 0,
-          filter: "blur(0px)",
-          duration: 1.5,
-          stagger: 0.02,
-          ease: "power4.out",
-          delay: 1.8, // wait for fast preloader
+          isDesktop: "(min-width: 768px)",
+          isMobile: "(max-width: 767px)",
+        },
+        (context) => {
+          const { isDesktop } = context.conditions as { isDesktop: boolean }
+
+          // Initial Text Animations
+          gsap.fromTo(
+            letters,
+            {
+              y: 150,
+              opacity: 0,
+              rotateX: -90,
+              filter: isDesktop ? "blur(20px)" : "blur(0px)",
+            },
+            {
+              y: 0,
+              opacity: 1,
+              rotateX: 0,
+              filter: "blur(0px)",
+              duration: 1.5,
+              stagger: 0.02,
+              ease: "power4.out",
+              delay: 1.8,
+            }
+          )
+
+          gsap.fromTo(
+            ".hero-sub",
+            {
+              opacity: 0,
+              y: 20,
+              filter: isDesktop ? "blur(15px)" : "blur(0px)",
+            },
+            {
+              opacity: 1,
+              y: 0,
+              filter: "blur(0px)",
+              duration: 1,
+              delay: 2.3,
+              ease: "power3.out",
+            }
+          )
+
+          // Scroll Choreography
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: container.current,
+              start: "top top",
+              end: "+=200%",
+              scrub: 1,
+              pin: true,
+            },
+          })
+
+          tl.to(
+            textContainer.current,
+            {
+              scale: 1.5,
+              opacity: 0,
+              filter: isDesktop ? "blur(20px)" : "blur(0px)",
+              duration: 1,
+              ease: "power2.inOut",
+            },
+            0
+          )
+            .to(
+              videoWrapper.current,
+              {
+                width: "100%",
+                height: "100vh",
+                borderRadius: "0px",
+                bottom: "0",
+                duration: 1.5,
+                ease: "power2.inOut",
+              },
+              0
+            )
+            .to(
+              ".hero-overlay",
+              {
+                opacity: 0,
+                backdropFilter: "blur(0px)",
+                duration: 1.5,
+              },
+              0
+            )
         }
       )
-
-      gsap.fromTo(
-        ".hero-sub",
-        { opacity: 0, y: 20, filter: "blur(15px)" },
-        {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 1,
-          delay: 2.3,
-          ease: "power3.out",
-        }
-      )
-
-      // Scroll Choreography - The "Cinematic" Camera Move
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: container.current,
-          start: "top top",
-          end: "+=200%",
-          scrub: 1,
-          pin: true,
-        },
-      })
-
-      // Typography splits and moves towards the camera
-      tl.to(
-        textContainer.current,
-        {
-          scale: 1.5,
-          opacity: 0,
-          filter: "blur(20px)",
-          duration: 1,
-          ease: "power2.inOut",
-        },
-        0
-      )
-        // Video expands from a framed window into a full immersive background
-        .to(
-          videoWrapper.current,
-          {
-            width: "100%",
-            height: "100vh",
-            borderRadius: "0px",
-            bottom: "0",
-            duration: 1.5,
-            ease: "power2.inOut",
-          },
-          0
-        )
-        .to(
-          ".hero-overlay",
-          {
-            opacity: 0, // reveal the video brightly
-            backdropFilter: "blur(0px)",
-            duration: 1.5,
-          },
-          0
-        )
     },
     { scope: container }
   )
@@ -143,27 +161,27 @@ export function Hero() {
             Cinematic Marketing Videos
           </p>
 
-          <div className="flex flex-col items-center gap-4 sm:flex-row md:gap-6">
+          <div className="flex w-full flex-col items-stretch gap-4 px-6 sm:w-auto sm:flex-row md:gap-6 md:px-0">
             <a
               href="/contact"
-              className="group relative flex cursor-none items-center justify-center overflow-hidden rounded-full border border-brand-500 bg-brand-500/20 px-8 py-4 shadow-[0_8px_32px_rgba(0,211,218,0.2)] backdrop-blur-xl transition-colors duration-700 hover:bg-brand-500/40 md:px-10 md:py-5"
+              className="group relative flex cursor-none items-center justify-center overflow-hidden rounded-full border border-brand-500 bg-brand-500/10 px-6 py-4 shadow-lg backdrop-blur-md transition-colors duration-700 hover:bg-brand-500/30 sm:px-8 sm:py-4 md:px-10 md:py-5"
               onMouseEnter={() => setCursorState("magnetic")}
               onMouseLeave={() => setCursorState("default")}
             >
               <div className="absolute inset-0 translate-y-[101%] bg-brand-500 transition-transform duration-700 ease-[0.76,0,0.24,1] group-hover:translate-y-0" />
-              <span className="relative z-10 font-mono text-xs font-bold tracking-[0.3em] text-brand-100 uppercase transition-colors duration-300 group-hover:text-neutral-900 md:text-sm">
+              <span className="relative z-10 font-mono text-xs font-bold tracking-[0.2em] text-brand-100 uppercase transition-colors duration-300 group-hover:text-neutral-900 md:text-sm md:tracking-[0.3em]">
                 Start Project
               </span>
             </a>
 
             <a
               href="#work"
-              className="group relative flex cursor-none items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/5 px-8 py-4 shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-colors duration-700 hover:border-white/30 md:px-10 md:py-5"
+              className="group relative flex cursor-none items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/5 px-6 py-4 shadow-lg backdrop-blur-md transition-colors duration-700 hover:border-white/30 sm:px-8 sm:py-4 md:px-10 md:py-5"
               onMouseEnter={() => setCursorState("magnetic")}
               onMouseLeave={() => setCursorState("default")}
             >
               <div className="absolute inset-0 translate-y-[101%] bg-white/10 transition-transform duration-700 ease-[0.76,0,0.24,1] group-hover:translate-y-0" />
-              <span className="relative z-10 font-mono text-xs tracking-[0.3em] text-neutral-100 uppercase transition-colors duration-300 group-hover:text-white md:text-sm">
+              <span className="relative z-10 font-mono text-xs tracking-[0.2em] text-neutral-100 uppercase transition-colors duration-300 group-hover:text-white md:text-sm md:tracking-[0.3em]">
                 Watch Showreel
               </span>
             </a>
@@ -173,7 +191,7 @@ export function Hero() {
 
       <div
         ref={videoWrapper}
-        className="absolute right-0 bottom-[5%] left-0 z-0 mx-auto h-[40vh] w-[60vw] transform-gpu overflow-hidden rounded-[30px] border border-brand-500/20 bg-neutral-600 shadow-[0_0_50px_rgba(0,22,23,0.8)]"
+        className="absolute right-0 bottom-[-5%] left-0 z-0 mx-auto h-[35vh] w-[90vw] transform-gpu overflow-hidden rounded-[20px] border border-brand-500/20 bg-neutral-600 shadow-[0_0_50px_rgba(0,22,23,0.8)] sm:bottom-[5%] sm:h-[40vh] sm:w-[60vw] sm:rounded-[30px]"
       >
         <div
           className="hero-overlay pointer-events-none absolute inset-0 z-10 bg-neutral-900/40"

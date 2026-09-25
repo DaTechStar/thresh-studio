@@ -41,18 +41,21 @@ export function SelectedWork() {
         return -(scrollWrapper.current!.scrollWidth - window.innerWidth)
       }
 
-      // Smooth horizontal scroll hijack without snap (snap causes sticking/jank)
-      gsap.to(scrollWrapper.current, {
-        x: getScrollAmount,
-        ease: "none",
-        scrollTrigger: {
-          trigger: container.current,
-          pin: true,
-          scrub: 1, // Smooth scrub
-          end: () =>
-            `+=${scrollWrapper.current!.scrollWidth - window.innerWidth}`,
-          invalidateOnRefresh: true, // Recalculates on window resize
-        },
+      const mm = gsap.matchMedia()
+
+      mm.add("(min-width: 768px)", () => {
+        gsap.to(scrollWrapper.current, {
+          x: getScrollAmount,
+          ease: "none",
+          scrollTrigger: {
+            trigger: container.current,
+            pin: true,
+            scrub: 1,
+            end: () =>
+              `+=${scrollWrapper.current!.scrollWidth - window.innerWidth}`,
+            invalidateOnRefresh: true,
+          },
+        })
       })
 
       // Internal Image Parallax
@@ -116,13 +119,7 @@ export function SelectedWork() {
 
       <div
         ref={scrollWrapper}
-        className="absolute top-0 left-0 flex h-full items-center will-change-transform"
-        style={{
-          width:
-            !projects || featuredProjects.length === 0
-              ? "100vw"
-              : `${featuredProjects.length * 100}vw`,
-        }}
+        className="hide-scrollbar relative flex h-full w-full snap-x snap-mandatory items-center overflow-x-auto md:absolute md:top-0 md:left-0 md:w-max md:snap-none md:overflow-visible md:will-change-transform"
       >
         {isLoading ? (
           <div className="relative flex h-full w-screen items-center justify-center bg-background/50 backdrop-blur-sm">
@@ -145,7 +142,7 @@ export function SelectedWork() {
             ) => (
               <div
                 key={project.id}
-                className="project-card relative flex h-full w-screen shrink-0 items-center justify-center overflow-hidden"
+                className="project-card relative flex h-full w-screen shrink-0 snap-center items-center justify-center overflow-hidden"
               >
                 <div
                   className="group relative h-full w-full cursor-none"

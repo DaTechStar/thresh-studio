@@ -41,9 +41,11 @@ const services = [
 function ServiceAccordion({
   service,
   isActive,
+  onClick,
 }: {
   service: (typeof services)[0]
   isActive: boolean
+  onClick: () => void
 }) {
   const contentRef = useRef<HTMLDivElement>(null)
   const { setCursorState } = useCursor()
@@ -69,8 +71,9 @@ function ServiceAccordion({
 
   return (
     <div
+      onClick={onClick}
       className={cn(
-        "group relative flex cursor-none flex-col overflow-hidden border-b border-neutral-900 transition-colors duration-700",
+        "group relative flex cursor-pointer flex-col overflow-hidden border-b border-neutral-900 transition-colors duration-700 md:cursor-none",
         isActive ? "bg-transparent" : ""
       )}
       onMouseEnter={() => setCursorState("explore")}
@@ -143,17 +146,21 @@ export function Services() {
     () => {
       if (!sectionRef.current) return
 
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        onUpdate: (self) => {
-          const index = Math.min(
-            services.length - 1,
-            Math.floor(self.progress * services.length)
-          )
-          setActiveService(services[index].id)
-        },
+      const mm = gsap.matchMedia()
+
+      mm.add("(min-width: 768px)", () => {
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          onUpdate: (self) => {
+            const index = Math.min(
+              services.length - 1,
+              Math.floor(self.progress * services.length)
+            )
+            setActiveService(services[index].id)
+          },
+        })
       })
     },
     { scope: sectionRef }
@@ -163,9 +170,9 @@ export function Services() {
     <section
       id="capabilities"
       ref={sectionRef}
-      className="relative h-[400vh] w-full border-t border-neutral-800 bg-background"
+      className="relative h-auto w-full border-t border-neutral-800 bg-background md:h-[400vh]"
     >
-      <div className="sticky top-0 flex h-screen w-full flex-col justify-center overflow-hidden px-4 py-20 md:px-16">
+      <div className="relative flex h-auto min-h-screen w-full flex-col justify-center overflow-hidden px-4 py-20 md:sticky md:top-0 md:h-screen md:px-16">
         <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_50%,var(--color-brand-700)_0%,transparent_70%)] opacity-20" />
 
         <div className="relative z-10 mx-auto flex h-full w-full max-w-screen-2xl flex-col items-center gap-12 md:flex-row md:gap-24">
@@ -186,6 +193,7 @@ export function Services() {
                 key={service.id}
                 service={service}
                 isActive={activeService === service.id}
+                onClick={() => setActiveService(service.id)}
               />
             ))}
           </div>
