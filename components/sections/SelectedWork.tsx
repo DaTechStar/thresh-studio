@@ -54,6 +54,7 @@ export function SelectedWork() {
             end: () =>
               `+=${scrollWrapper.current!.scrollWidth - window.innerWidth}`,
             invalidateOnRefresh: true,
+            refreshPriority: 2,
           },
         })
       })
@@ -99,7 +100,7 @@ export function SelectedWork() {
         )
       }
     },
-    { scope: container }
+    { scope: container, dependencies: [projects, isLoading] }
   )
 
   return (
@@ -150,14 +151,22 @@ export function SelectedWork() {
                   onMouseLeave={() => setCursorState("default")}
                 >
                   <div className="pointer-events-none absolute top-0 left-[-20%] h-full w-[140%]">
-                    <video
-                      className="project-image h-full w-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-[1.1] md:mix-blend-luminosity md:group-hover:mix-blend-normal"
-                      src={project.videoUrl}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
+                    {project.videoUrl ? (
+                      <video
+                        className="project-image h-full w-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-[1.1] md:mix-blend-luminosity md:group-hover:mix-blend-normal"
+                        src={project.videoUrl}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                      />
+                    ) : project.gallery && project.gallery.length > 0 ? (
+                      <img
+                        className="project-image h-full w-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-[1.1] md:mix-blend-luminosity md:group-hover:mix-blend-normal"
+                        src={project.gallery[0]}
+                        alt={project.title || "Project Image"}
+                      />
+                    ) : null}
                   </div>
 
                   {/* Overlays for contrast (always visible) */}

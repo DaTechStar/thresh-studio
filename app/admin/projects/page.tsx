@@ -17,7 +17,7 @@ export default async function ProjectsPage() {
   const projects = await getProjects()
 
   return (
-    <div className="flex min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="flex min-h-screen text-neutral-100">
       <AdminSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <AdminNav />

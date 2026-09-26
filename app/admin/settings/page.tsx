@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function SettingsPage() {
   return (
-    <div className="flex min-h-screen bg-neutral-950 text-neutral-100">
+    <div className="flex min-h-screen text-neutral-100">
       <AdminSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <AdminNav />

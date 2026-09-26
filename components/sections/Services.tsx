@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef } from "react"
 import { useCursor } from "../cursor/CursorContext"
+import { useLenis } from "lenis/react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
@@ -48,27 +49,7 @@ function ServiceAccordion({
   isActive: boolean
   onClick: () => void
 }) {
-  const contentRef = useRef<HTMLDivElement>(null)
   const { setCursorState } = useCursor()
-
-  useEffect(() => {
-    if (!contentRef.current) return
-    if (isActive) {
-      gsap.to(contentRef.current, {
-        height: "auto",
-        opacity: 1,
-        duration: 0.6,
-        ease: "power3.inOut",
-      })
-    } else {
-      gsap.to(contentRef.current, {
-        height: 0,
-        opacity: 0,
-        duration: 0.6,
-        ease: "power3.inOut",
-      })
-    }
-  }, [isActive])
 
   return (
     <div
@@ -118,32 +99,36 @@ function ServiceAccordion({
       </div>
 
       <div
-        ref={contentRef}
-        className="h-0 overflow-hidden px-2 opacity-0 md:px-6"
+        className={cn(
+          "grid px-2 transition-all duration-700 ease-[0.76,0,0.24,1] md:px-6",
+          isActive ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        )}
       >
-        <div className="flex flex-col items-start gap-6 pb-6 md:flex-row">
-          <div className="relative h-[20vh] w-full overflow-hidden rounded-xl shadow-2xl md:h-[25vh] md:w-1/2">
-            <Image
-              src={service.image}
-              alt={service.name}
-              fill
-              className="scale-105 object-cover transition-all duration-1000 hover:mix-blend-normal md:mix-blend-luminosity"
-            />
-            <div className="pointer-events-none absolute inset-0 bg-brand-700/20 mix-blend-overlay" />
-          </div>
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex flex-col items-start gap-6 pb-6 md:flex-row">
+            <div className="relative h-[20vh] w-full overflow-hidden rounded-xl shadow-2xl md:h-[25vh] md:w-1/2">
+              <Image
+                src={service.image}
+                alt={service.name}
+                fill
+                className="scale-105 object-cover transition-all duration-1000 hover:mix-blend-normal md:mix-blend-luminosity"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-brand-700/20 mix-blend-overlay" />
+            </div>
 
-          <div className="flex h-full w-full flex-col justify-end md:w-1/2">
-            <p className="text-sm leading-relaxed text-neutral-400 md:text-base">
-              {service.desc}
-            </p>
-            <Link
-              href={`/work?category=${service.name.toLowerCase().replace(/\s+/g, "-")}`}
-              className="mt-4 block w-fit rounded-full border border-brand-500/30 px-4 py-2 text-center font-mono text-[10px] tracking-[0.2em] text-brand-200 uppercase transition-colors hover:bg-brand-500/10 md:mt-6 md:px-6 md:py-3"
-              onMouseEnter={() => setCursorState("link")}
-              onMouseLeave={() => setCursorState("explore")}
-            >
-              Explore {service.name}
-            </Link>
+            <div className="flex h-full w-full flex-col justify-end md:w-1/2">
+              <p className="text-sm leading-relaxed text-neutral-400 md:text-base">
+                {service.desc}
+              </p>
+              <Link
+                href={`/work?category=${service.name.toLowerCase().replace(/\s+/g, "-")}`}
+                className="mt-4 block w-fit rounded-full border border-brand-500/30 px-4 py-2 text-center font-mono text-[10px] tracking-[0.2em] text-brand-200 uppercase transition-colors hover:bg-brand-500/10 md:mt-6 md:px-6 md:py-3"
+                onMouseEnter={() => setCursorState("link")}
+                onMouseLeave={() => setCursorState("explore")}
+              >
+                Explore {service.name}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -154,6 +139,7 @@ function ServiceAccordion({
 export function Services() {
   const [activeService, setActiveService] = useState<string>("01")
   const sectionRef = useRef<HTMLElement>(null)
+  const lenis = useLenis()
 
   useGSAP(
     () => {
@@ -166,6 +152,7 @@ export function Services() {
           trigger: sectionRef.current,
           start: "top top",
           end: "bottom bottom",
+          refreshPriority: 1,
           onUpdate: (self) => {
             const index = Math.min(
               services.length - 1,
@@ -201,12 +188,27 @@ export function Services() {
           </div>
 
           <div className="mt-8 flex w-full flex-col md:mt-0 md:w-2/3">
-            {services.map((service) => (
+            {services.map((service, index) => (
               <ServiceAccordion
                 key={service.id}
                 service={service}
                 isActive={activeService === service.id}
-                onClick={() => setActiveService(service.id)}
+                onClick={() => {
+                  if (window.innerWidth >= 768) {
+                    const trigger = ScrollTrigger.getAll().find(
+                      (t) => t.trigger === sectionRef.current
+                    )
+                    if (trigger && lenis) {
+                      const start = trigger.start
+                      const end = trigger.end
+                      const progress = (index + 0.5) / services.length
+                      const scrollPos = start + (end - start) * progress
+                      lenis.scrollTo(scrollPos, { duration: 1.2 })
+                    }
+                  } else {
+                    setActiveService(service.id)
+                  }
+                }}
               />
             ))}
           </div>

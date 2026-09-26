@@ -80,6 +80,7 @@ export function Hero() {
                 end: "+=200%",
                 scrub: 1,
                 pin: true,
+                refreshPriority: 3,
               },
             })
 

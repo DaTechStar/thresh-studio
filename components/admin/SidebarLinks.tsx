@@ -2,7 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Video, Settings, ExternalLink } from "lucide-react"
+import {
+  LayoutDashboard,
+  Video,
+  Settings,
+  ExternalLink,
+  MessageSquare,
+} from "lucide-react"
 
 export function SidebarLinks() {
   const pathname = usePathname()
@@ -18,6 +24,12 @@ export function SidebarLinks() {
       name: "Projects",
       href: "/admin/projects",
       icon: Video,
+      disabled: false,
+    },
+    {
+      name: "Testimonials",
+      href: "/admin/testimonials",
+      icon: MessageSquare,
       disabled: false,
     },
     {

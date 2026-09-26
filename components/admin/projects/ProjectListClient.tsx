@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 
 import { ProjectFormValues } from "@/lib/schemas"
+import { ConfirmAlert } from "@/components/ui/confirm-alert"
 
 export function ProjectListClient({
   initialProjects,
@@ -29,15 +30,36 @@ export function ProjectListClient({
   const [projects, setProjects] = useState(initialProjects)
   const [searchQuery, setSearchQuery] = useState("")
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
-  const handleDelete = async (id: string) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this project? This cannot be undone."
+  const handleTogglePublish = async (id: string, currentStatus: boolean) => {
+    setTogglingId(id)
+    try {
+      const res = await fetch(`/api/admin/projects/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublished: !currentStatus }),
+      })
+      if (!res.ok) throw new Error("Failed to update status")
+
+      setProjects(
+        projects.map((p) =>
+          p.id === id ? { ...p, isPublished: !currentStatus } : p
+        )
       )
-    )
-      return
+      toast.success(currentStatus ? "Project hidden" : "Project published")
+      router.refresh()
+    } catch (error) {
+      toast.error("Failed to update status")
+    } finally {
+      setTogglingId(null)
+    }
+  }
 
+  const handleDelete = async () => {
+    if (!confirmDeleteId) return
+    const id = confirmDeleteId
     setDeletingId(id)
     try {
       const res = await fetch(`/api/admin/projects/${id}`, { method: "DELETE" })
@@ -52,6 +74,7 @@ export function ProjectListClient({
       )
     } finally {
       setDeletingId(null)
+      setConfirmDeleteId(null)
     }
   }
 
@@ -128,13 +151,27 @@ export function ProjectListClient({
                   {project.category}
                 </div>
 
-                <div className="absolute top-5 right-5 rounded-full border border-white/5 bg-black/40 p-2 text-neutral-400 backdrop-blur-md transition-colors group-hover:text-white">
-                  {project.isPublished ? (
+                <button
+                  onClick={() =>
+                    handleTogglePublish(
+                      project.id as string,
+                      project.isPublished || false
+                    )
+                  }
+                  disabled={togglingId === project.id}
+                  title={
+                    project.isPublished ? "Hide project" : "Publish project"
+                  }
+                  className="absolute top-5 right-5 rounded-full border border-white/5 bg-black/40 p-2 text-neutral-400 backdrop-blur-md transition-colors hover:border-brand-500/50 hover:text-brand-300 disabled:opacity-50"
+                >
+                  {togglingId === project.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-brand-300" />
+                  ) : project.isPublished ? (
                     <Eye className="h-4 w-4 text-brand-300" />
                   ) : (
                     <EyeOff className="h-4 w-4" />
                   )}
-                </div>
+                </button>
 
                 <div className="absolute right-5 bottom-5 left-5 flex items-end justify-between">
                   <div>
@@ -162,7 +199,7 @@ export function ProjectListClient({
                     <Pencil className="h-3.5 w-3.5" /> Edit Project
                   </Link>
                   <button
-                    onClick={() => handleDelete(project.id as string)}
+                    onClick={() => setConfirmDeleteId(project.id as string)}
                     disabled={deletingId === project.id}
                     className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 transition-colors hover:bg-red-500 hover:text-white disabled:opacity-50"
                   >
@@ -178,6 +215,15 @@ export function ProjectListClient({
           ))}
         </div>
       )}
+
+      <ConfirmAlert
+        isOpen={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Delete Project?"
+        description="Are you sure you want to delete this project? This action cannot be undone and will permanently remove it from your portfolio."
+        isLoading={!!deletingId}
+      />
     </div>
   )
 }

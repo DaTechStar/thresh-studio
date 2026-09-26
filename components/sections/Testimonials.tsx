@@ -4,45 +4,23 @@ import React, { useRef } from "react"
 import { gsap, useGSAP } from "@/lib/gsap"
 import Image from "next/image"
 import { useCursor } from "../cursor/CursorContext"
-
-const testimonials = [
-  {
-    quote:
-      "Thresh didn't just brand our product. They completely changed how our users experience it. An absolute masterclass in digital storytelling. Which nobody out there does among competitors.",
-    author: "Sarah Jenkins",
-    role: "VP Marketing @ Lumina",
-    avatar:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2560&auto=format&fit=crop",
-  },
-  {
-    quote:
-      "The 3D motion work they delivered was nothing short of cinematic. It elevated our campaign from a standard product launch to a visual event.",
-    author: "Marcus Chen",
-    role: "Creative Director",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2560&auto=format&fit=crop",
-  },
-  {
-    quote:
-      "Working with this studio felt less like hiring an agency and more like partnering with a high-end film production crew. The attention to detail is insane.",
-    author: "Elena Rodriguez",
-    role: "Founder @ Chronos",
-    avatar:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=2560&auto=format&fit=crop",
-  },
-]
+import { useTestimonials } from "@/hooks/useTestimonials"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function Testimonials() {
+  const { data: testimonials = [], isLoading } = useTestimonials()
   const container = useRef<HTMLDivElement>(null)
   const { setCursorState } = useCursor()
 
   useGSAP(
     () => {
-      if (!container.current) return
+      if (!container.current || isLoading || testimonials.length === 0) return
       const cards = gsap.utils.toArray<HTMLElement>(".testimonial-card")
       const mm = gsap.matchMedia()
 
       mm.add("(min-width: 768px)", () => {
+        if (testimonials.length <= 1) return
+
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: container.current,
@@ -120,16 +98,51 @@ export function Testimonials() {
         })
       })
     },
-    { scope: container }
+    { scope: container, dependencies: [isLoading, testimonials.length] }
   )
+
+  if (isLoading) {
+    return (
+      <section className="relative w-full border-t border-neutral-800 bg-background py-24 md:py-32">
+        <div className="relative z-20 flex shrink-0 flex-col items-center px-4 text-center md:px-16">
+          <Skeleton className="mb-4 h-4 w-32 bg-neutral-800" />
+          <Skeleton className="h-12 w-3/4 max-w-2xl bg-neutral-800 md:h-16" />
+        </div>
+        <div className="mx-auto mt-16 max-w-5xl px-4 md:mt-24">
+          <div className="h-auto w-full rounded-[2rem] border border-neutral-800 bg-neutral-900/50 p-8 shadow-[0_30px_60px_rgba(0,0,0,0.6)] md:h-[60vh] md:p-16">
+            <div className="flex h-full flex-col gap-8 md:flex-row md:gap-16">
+              <div className="flex w-full flex-col items-start border-neutral-800 md:w-1/3 md:border-r md:pr-12">
+                <Skeleton className="mb-6 h-20 w-20 rounded-full bg-neutral-800 md:mb-10 md:h-24 md:w-24" />
+                <Skeleton className="mb-2 h-6 w-48 bg-neutral-800" />
+                <Skeleton className="h-4 w-32 bg-neutral-800" />
+              </div>
+              <div className="flex w-full flex-col justify-center md:w-2/3">
+                <Skeleton className="h-32 w-full bg-neutral-800" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (testimonials.length === 0) return null
 
   return (
     <section
       ref={container}
       id="testimonials"
-      className="relative w-full border-t border-neutral-800 bg-background md:h-[300vh]"
+      className={`relative w-full border-t border-neutral-800 bg-background ${
+        testimonials.length > 1 ? "md:h-[300vh]" : "md:h-auto md:py-32"
+      }`}
     >
-      <div className="flex h-auto w-full flex-col md:sticky md:top-0 md:h-screen md:overflow-hidden">
+      <div
+        className={`flex h-auto w-full flex-col ${
+          testimonials.length > 1
+            ? "md:sticky md:top-0 md:h-screen md:overflow-hidden"
+            : ""
+        }`}
+      >
         {/* Section Header */}
         <div className="relative z-20 flex shrink-0 flex-col items-center px-4 pt-16 text-center md:px-16 md:pt-24">
           <h2 className="mb-4 font-mono text-sm tracking-[0.3em] text-brand-300 uppercase">
@@ -142,7 +155,11 @@ export function Testimonials() {
 
         {/* Cards Container */}
         <div
-          className="relative z-10 mx-auto mt-16 flex h-auto w-full max-w-5xl flex-col gap-6 px-4 pb-20 perspective-[1000px] md:mt-24 md:block md:h-[60vh] md:cursor-none md:px-0 md:pb-0"
+          className={`relative z-10 mx-auto mt-16 flex h-auto w-full max-w-5xl flex-col gap-6 px-4 pb-20 perspective-[1000px] md:mt-24 ${
+            testimonials.length > 1
+              ? "md:block md:h-[60vh] md:cursor-none md:px-0 md:pb-0"
+              : ""
+          }`}
           onMouseEnter={() => {
             if (window.innerWidth >= 768) setCursorState("explore")
           }}
@@ -153,7 +170,11 @@ export function Testimonials() {
           {testimonials.map((testimonial, i) => (
             <div
               key={i}
-              className="testimonial-card relative top-0 left-0 flex h-auto w-full flex-col overflow-hidden rounded-[2rem] border border-brand-500/50 bg-black shadow-[0_30px_60px_rgba(0,0,0,0.6)] md:absolute md:h-full md:flex-row"
+              className={`testimonial-card relative top-0 left-0 flex h-auto w-full flex-col overflow-hidden rounded-[2rem] border border-brand-500/50 bg-black shadow-[0_30px_60px_rgba(0,0,0,0.6)] md:flex-row ${
+                testimonials.length > 1
+                  ? "md:absolute md:h-full"
+                  : "md:min-h-[60vh]"
+              }`}
               style={{ zIndex: testimonials.length - i }}
             >
               {/* Strong Black to Brand Background */}
@@ -165,26 +186,29 @@ export function Testimonials() {
               {/* Inner Content */}
               <div className="relative z-10 flex h-full w-full flex-col gap-8 p-8 md:flex-row md:gap-16 md:p-16">
                 {/* Left Column (Avatar, Name, Rating) */}
-                <div className="flex w-full flex-col items-start border-brand-500/20 md:w-1/3 md:border-r md:pr-12">
-                  <div className="relative mb-6 h-20 w-20 shrink-0 overflow-hidden rounded-full shadow-2xl md:mb-10 md:h-24 md:w-24">
-                    <Image
-                      src={testimonial.avatar}
-                      alt={testimonial.author}
-                      fill
-                      sizes="(max-width: 768px) 5rem, 6rem"
-                      className="absolute inset-0 object-cover md:mix-blend-luminosity"
-                    />
-                    <div className="pointer-events-none absolute inset-0 bg-brand-500/40 mix-blend-color" />
+                <div className="flex w-full flex-col items-start justify-center border-brand-500/20 md:w-1/3 md:border-r md:pr-12">
+                  {testimonial.avatar && (
+                    <div className="relative mb-6 h-20 w-20 shrink-0 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900 shadow-2xl md:mb-8 md:h-24 md:w-24">
+                      <Image
+                        src={testimonial.avatar}
+                        alt={testimonial.author}
+                        fill
+                        sizes="(max-width: 768px) 5rem, 6rem"
+                        className="absolute inset-0 object-cover"
+                      />
+                    </div>
+                  )}
+
+                  <div>
+                    <h4 className="text-xl font-bold text-neutral-100 md:text-2xl">
+                      {testimonial.author}
+                    </h4>
+                    <p className="mt-2 font-mono text-[10px] tracking-[0.2em] text-brand-300 uppercase opacity-80 md:text-xs">
+                      {testimonial.role}
+                    </p>
                   </div>
 
-                  <h4 className="text-xl font-bold text-neutral-100 md:text-2xl">
-                    {testimonial.author}
-                  </h4>
-                  <p className="mt-2 mb-6 font-mono text-[10px] tracking-[0.2em] text-brand-300 uppercase opacity-80 md:mb-10 md:text-xs">
-                    {testimonial.role}
-                  </p>
-
-                  <div className="mt-auto flex items-center gap-4">
+                  <div className="mt-6 flex items-center gap-4 md:mt-8">
                     <span className="text-xl font-bold text-neutral-100">
                       5.0
                     </span>

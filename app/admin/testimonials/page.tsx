@@ -1,18 +1,19 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
-import { ProjectForm } from "@/components/admin/projects/ProjectForm"
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { getTestimonials } from "@/lib/services/testimonialService"
+import { TestimonialListClient } from "@/components/admin/testimonials/TestimonialListClient"
 import { AdminNav } from "@/components/admin/AdminNav"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 
 export const metadata = {
-  title: "New Project | Thresh Studio Admin",
+  title: "Testimonials | Thresh Studio Admin",
 }
 
-export default async function NewProjectPage() {
+export default async function TestimonialsPage() {
   const session = await auth()
   if (!session) redirect("/admin/login")
+
+  const testimonials = await getTestimonials()
 
   return (
     <div className="flex min-h-screen text-neutral-100">
@@ -22,20 +23,17 @@ export default async function NewProjectPage() {
         <main className="mx-auto w-full max-w-7xl space-y-8 p-6 pb-20 md:p-10">
           <div className="max-w-6xl">
             <div className="mb-10">
-              <Link
-                href="/admin/projects"
-                className="mb-6 inline-flex items-center gap-2 text-xs font-bold tracking-widest text-neutral-500 uppercase transition-colors hover:text-brand-300"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" /> Back to Projects
-              </Link>
               <h1 className="mb-2 text-3xl font-bold tracking-tight text-white">
-                Create New Project
+                Testimonials
               </h1>
               <p className="text-neutral-400">
-                Add a new case study to your portfolio.
+                Manage your client feedback and reviews.
               </p>
             </div>
-            <ProjectForm />
+            <TestimonialListClient
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              initialTestimonials={testimonials as any[]}
+            />
           </div>
         </main>
       </div>

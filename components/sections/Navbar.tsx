@@ -45,6 +45,7 @@ export function Navbar() {
             alt="Thresh Studio"
             width={120}
             height={32}
+            style={{ width: "auto" }}
             className="h-6 w-auto transition-transform duration-700 group-hover:scale-105 md:h-8"
           />
         </Link>

@@ -1,5 +1,6 @@
 import React from "react"
 import { Toaster } from "@/components/ui/sonner"
+import { AdminBackground } from "@/components/admin/AdminBackground"
 
 export default function AdminLayout({
   children,
@@ -7,13 +8,10 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-neutral-950 font-sans text-neutral-100">
-      {/* 
-        This nested layout overrides the global cinematic styles,
-        giving us a clean, native-feeling dashboard environment 
-        free of smooth scroll or cursor hijacking.
-      */}
-      {children}
+    <div className="relative min-h-screen bg-background font-sans text-neutral-100 selection:bg-brand-500/30">
+      <AdminBackground />
+
+      <div className="relative z-10 flex min-h-screen flex-col">{children}</div>
       <Toaster position="top-right" />
     </div>
   )

@@ -73,6 +73,17 @@ export const trustedBrandSchema = z.object({
 })
 export type TrustedBrandValues = z.infer<typeof trustedBrandSchema>
 
+export const testimonialSchema = z.object({
+  quote: z.string().min(1, "Quote is required"),
+  author: z.string().min(1, "Author name is required"),
+  role: z.string().min(1, "Role/Title is required"),
+  avatar: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  rating: z.number().min(1).max(5),
+  isActive: z.boolean(),
+  order: z.number(),
+})
+export type TestimonialFormValues = z.infer<typeof testimonialSchema>
+
 export const accountSettingsSchema = z
   .object({
     email: z.string().email("Invalid email format").min(1, "Email is required"),

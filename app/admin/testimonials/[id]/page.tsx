@@ -1,17 +1,17 @@
 import { auth } from "@/auth"
-import { redirect, notFound } from "next/navigation"
-import { getProjectById } from "@/lib/services/projectService"
-import { ProjectForm } from "@/components/admin/projects/ProjectForm"
+import { redirect } from "next/navigation"
+import { getTestimonialById } from "@/lib/services/testimonialService"
+import { TestimonialForm } from "@/components/admin/testimonials/TestimonialForm"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { AdminNav } from "@/components/admin/AdminNav"
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 
 export const metadata = {
-  title: "Edit Project | Thresh Studio Admin",
+  title: "Edit Testimonial | Thresh Studio Admin",
 }
 
-export default async function EditProjectPage({
+export default async function EditTestimonialPage({
   params,
 }: {
   params: Promise<{ id: string }>
@@ -20,9 +20,11 @@ export default async function EditProjectPage({
   if (!session) redirect("/admin/login")
 
   const { id } = await params
-  const project = await getProjectById(id)
+  const testimonial = await getTestimonialById(id)
 
-  if (!project) return notFound()
+  if (!testimonial) {
+    redirect("/admin/testimonials")
+  }
 
   return (
     <div className="flex min-h-screen text-neutral-100">
@@ -33,20 +35,20 @@ export default async function EditProjectPage({
           <div className="max-w-6xl">
             <div className="mb-10">
               <Link
-                href="/admin/projects"
+                href="/admin/testimonials"
                 className="mb-6 inline-flex items-center gap-2 text-xs font-bold tracking-widest text-neutral-500 uppercase transition-colors hover:text-brand-300"
               >
-                <ArrowLeft className="h-3.5 w-3.5" /> Back to Projects
+                <ArrowLeft className="h-3.5 w-3.5" /> Back to Testimonials
               </Link>
               <h1 className="mb-2 text-3xl font-bold tracking-tight text-white">
-                Edit Project
+                Edit Testimonial
               </h1>
               <p className="text-neutral-400">
-                Update the details for{" "}
-                <span className="font-medium text-white">{project.title}</span>.
+                Update the client review details.
               </p>
             </div>
-            <ProjectForm initialData={project} />
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            <TestimonialForm initialData={testimonial as any} />
           </div>
         </main>
       </div>

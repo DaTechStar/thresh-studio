@@ -64,7 +64,6 @@ export function SettingsClient() {
     }
   }, [activeTab, pathname, router, searchParams])
 
-  if (isLoading) return <PageSkeleton variant="form" />
   if (isError)
     return (
       <FetchError
@@ -82,9 +81,9 @@ export function SettingsClient() {
 
   return (
     <div className="space-y-8">
-      {/* Horizontal Tabs */}
-      <div className="hide-scrollbar flex overflow-x-auto border-b border-neutral-800">
-        <div className="flex gap-2 pb-px">
+      {/* Tabs */}
+      <div className="border-b border-neutral-800">
+        <div className="flex flex-wrap gap-2 pb-px">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -105,18 +104,51 @@ export function SettingsClient() {
         </div>
       </div>
 
-      {/* Tab Content */}
       <div className="rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
-        {activeTab === "account" && <AccountForm />}
+        {isLoading ? (
+          <div className="w-full max-w-3xl animate-pulse space-y-8 overflow-hidden">
+            <div className="space-y-2 border-b border-neutral-800/50 pb-6">
+              <div className="h-8 w-3/4 max-w-[16rem] rounded-md bg-neutral-800" />
+              <div className="h-4 w-full max-w-[24rem] rounded-md bg-neutral-800" />
+            </div>
+            <div className="space-y-8">
+              <div className="space-y-2">
+                <div className="h-4 w-24 rounded-md bg-neutral-800" />
+                <div className="h-12 w-full max-w-xl rounded-xl bg-neutral-800" />
+              </div>
+              <div className="space-y-6 border-t border-neutral-800/50 pt-8">
+                <div className="h-6 w-1/2 max-w-[12rem] rounded-md bg-neutral-800" />
+                <div className="grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
+                  <div className="space-y-2 md:col-span-2">
+                    <div className="h-4 w-32 rounded-md bg-neutral-800" />
+                    <div className="h-12 w-full max-w-xl rounded-xl bg-neutral-800" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-32 rounded-md bg-neutral-800" />
+                    <div className="h-12 w-full rounded-xl bg-neutral-800" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-40 rounded-md bg-neutral-800" />
+                    <div className="h-12 w-full rounded-xl bg-neutral-800" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {activeTab === "account" && <AccountForm />}
 
-        {activeTab === "hero" && <HeroForm initialData={settings || {}} />}
+            {activeTab === "hero" && <HeroForm initialData={settings || {}} />}
 
-        {activeTab === "brands" && (
-          <TrustedBrandsForm initialData={settings || {}} />
-        )}
+            {activeTab === "brands" && (
+              <TrustedBrandsForm initialData={settings || {}} />
+            )}
 
-        {activeTab === "socials" && (
-          <SocialsForm initialData={settings || {}} />
+            {activeTab === "socials" && (
+              <SocialsForm initialData={settings || {}} />
+            )}
+          </>
         )}
       </div>
     </div>

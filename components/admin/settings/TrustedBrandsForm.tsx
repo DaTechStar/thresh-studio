@@ -14,6 +14,7 @@ import {
 import { FileUpload } from "@/components/ui/file-upload"
 import { TrustedBrandValues } from "@/lib/schemas"
 import { Input } from "@/components/ui/input"
+import { ConfirmAlert } from "@/components/ui/confirm-alert"
 import {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -33,6 +34,11 @@ export function TrustedBrandsForm({
   const [newBrandName, setNewBrandName] = useState("")
   const [newBrandFile, setNewBrandFile] = useState<File | string | null>(null)
   const [editIndex, setEditIndex] = useState<number | null>(null)
+
+  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(
+    null
+  )
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleAddOrEditBrand = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -95,10 +101,14 @@ export function TrustedBrandsForm({
     setNewBrandFile(null)
   }
 
-  const handleRemoveBrand = async (index: number) => {
-    const updated = brands.filter((_, i) => i !== index)
+  const handleRemoveBrand = async () => {
+    if (confirmDeleteIndex === null) return
+    setIsDeleting(true)
+    const updated = brands.filter((_, i) => i !== confirmDeleteIndex)
     setBrands(updated)
     await saveBrandsToDatabase(updated)
+    setIsDeleting(false)
+    setConfirmDeleteIndex(null)
   }
 
   const saveBrandsToDatabase = async (updatedBrands: TrustedBrandValues[]) => {
@@ -242,7 +252,7 @@ export function TrustedBrandsForm({
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleRemoveBrand(idx)}
+                      onClick={() => setConfirmDeleteIndex(idx)}
                       className="rounded-md bg-red-500/10 p-1.5 text-red-400 transition-colors hover:bg-red-500 hover:text-white"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -267,6 +277,15 @@ export function TrustedBrandsForm({
           )}
         </div>
       </div>
+
+      <ConfirmAlert
+        isOpen={confirmDeleteIndex !== null}
+        onClose={() => setConfirmDeleteIndex(null)}
+        onConfirm={handleRemoveBrand}
+        title="Remove Brand?"
+        description="Are you sure you want to remove this trusted brand? This will permanently delete the logo from your storage."
+        isLoading={isDeleting}
+      />
     </div>
   )
 }
